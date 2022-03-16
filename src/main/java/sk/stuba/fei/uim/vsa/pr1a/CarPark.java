@@ -1,6 +1,7 @@
 package sk.stuba.fei.uim.vsa.pr1a;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "CAR_PARK")
@@ -11,6 +12,8 @@ public class CarPark {
     private String name;
     private String address;
     private Integer pricePerHour;
+    @OneToMany(mappedBy = "carPark")
+    private List<CarParkFloor> floors;
 
     public Long getId() {
         return id;
@@ -44,6 +47,15 @@ public class CarPark {
         this.pricePerHour = pricePerHour;
     }
 
+
+    public List<CarParkFloor> getFloors() {
+        return floors;
+    }
+
+    public void setFloors(List<CarParkFloor> floors) {
+        this.floors = floors;
+    }
+
     @Override
     public String toString() {
         return "CarPark{" +
@@ -53,4 +65,6 @@ public class CarPark {
                 ", pricePerHour=" + pricePerHour +
                 '}';
     }
+
+
 }

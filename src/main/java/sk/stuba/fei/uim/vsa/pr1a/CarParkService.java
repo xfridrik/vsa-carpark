@@ -1,7 +1,6 @@
 package sk.stuba.fei.uim.vsa.pr1a;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.Date;
 import java.util.List;
@@ -77,21 +76,67 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object createCarParkFloor(Long carParkId, String floorIdentifier) {
-        return null;
+        CarParkFloor carParkFloor = new CarParkFloor();
+        carParkFloor.setId(floorIdentifier);
+
+        EntityManager em = emf.createEntityManager();
+        carParkFloor.setCarPark(em.find(CarPark.class, carParkId));
+
+        em.getTransaction().begin();
+
+        try {
+            em.persist(carParkFloor);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
+        }
+        return carParkFloor;
     }
 
     @Override
     public Object getCarParkFloor(Long carParkId, String floorIdentifier) {
-        return null;
+        EntityManager em = emf.createEntityManager();
+        CarPark cp = em.find(CarPark.class, carParkId);
+        if(cp==null){
+            return null;
+        }
+        TypedQuery<CarParkFloor> q = em.createQuery("select c from CarParkFloor c where c.id=:id and c.carPark=:park", CarParkFloor.class);
+        q.setParameter("id",floorIdentifier);
+        q.setParameter("park",cp);
+        if(q.getResultList().size()>0){
+            CarParkFloor cpf = q.getSingleResult();
+            em.close();
+            return cpf;
+        }else {
+            em.close();
+            return null;
+        }
     }
 
     @Override
     public List<Object> getCarParkFloors(Long carParkId) {
-        return null;
+        EntityManager em = emf.createEntityManager();
+        TypedQuery<Object> q = em.createQuery("select c from CarParkFloor c", Object.class);
+        List<Object> cpList = q.getResultList();
+        em.close();
+        return cpList;
     }
 
     @Override
     public Object deleteCarParkFloor(Long carParkId, String floorIdentifier) {
+        CarParkFloor cpf = (CarParkFloor) getCarParkFloor(carParkId, floorIdentifier);
+        if(cpf != null){
+            EntityManager em = emf.createEntityManager();
+            if (!em.contains(cpf)) {
+                cpf = em.merge(cpf);
+            }
+            em.getTransaction().begin();
+            em.remove(cpf);
+            em.getTransaction().commit();
+        }
         return null;
     }
 
