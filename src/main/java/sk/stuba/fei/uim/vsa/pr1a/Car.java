@@ -53,4 +53,15 @@ public class Car implements Serializable {
     public void setLicensePlateNumber(String licensePlateNumber) {
         this.licensePlateNumber = licensePlateNumber;
     }
+
+    @Override
+    public String toString() {
+        return "Car{" +
+                "id=" + id +
+                ", brand='" + brand + '\'' +
+                ", model='" + model + '\'' +
+                ", color='" + color + '\'' +
+                ", licensePlateNumber='" + licensePlateNumber + '\'' +
+                '}';
+    }
 }
