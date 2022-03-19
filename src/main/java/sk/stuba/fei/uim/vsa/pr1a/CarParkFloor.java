@@ -1,38 +1,42 @@
 package sk.stuba.fei.uim.vsa.pr1a;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "CAR_PARK_FLOOR")
-public class CarParkFloor {
-    @Id
-    @Column(nullable=false)
-    private String id;
-    @Id
-    @ManyToOne(optional = false)
-    private CarPark carPark;
+//@IdClass(FloorId.class)
+public class CarParkFloor implements Serializable {
 
-    public CarPark getCarPark() {
-        return carPark;
-    }
+    @EmbeddedId
+    private FloorId id;
 
-    public void setCarPark(CarPark carPark) {
-        this.carPark = carPark;
-    }
+    @OneToMany(mappedBy = "carParkFloor")
+    private List<ParkingSpot> spots;
 
-    public String getId() {
+
+    public FloorId getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(FloorId id) {
         this.id = id;
     }
 
     @Override
     public String toString() {
         return "CarParkFloor{" +
-                "id='" + id + '\'' +
-                ", carPark=" + carPark +
+                "id=" + id +
                 '}';
+    }
+
+    public List<ParkingSpot> getSpots() {
+        return spots;
+    }
+
+    public void setSpots(List<ParkingSpot> spots) {
+        this.spots = spots;
     }
 }

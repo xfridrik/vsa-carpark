@@ -11,8 +11,8 @@ public class Car implements Serializable {
     private Long id;
     private String brand;
     private String model;
-    private String color;
-    private String licensePlateNumber;
+    private String colour;
+    private String vehicleRegistrationPlate;
 
     public void setId(Long id) {
         this.id = id;
@@ -38,20 +38,20 @@ public class Car implements Serializable {
         this.model = model;
     }
 
-    public String getColor() {
-        return color;
+    public String getColour() {
+        return colour;
     }
 
-    public void setColor(String color) {
-        this.color = color;
+    public void setColour(String colour) {
+        this.colour = colour;
     }
 
-    public String getLicensePlateNumber() {
-        return licensePlateNumber;
+    public String getVehicleRegistrationPlate() {
+        return vehicleRegistrationPlate;
     }
 
-    public void setLicensePlateNumber(String licensePlateNumber) {
-        this.licensePlateNumber = licensePlateNumber;
+    public void setVehicleRegistrationPlate(String vehicleRegistrationPlate) {
+        this.vehicleRegistrationPlate = vehicleRegistrationPlate;
     }
 
     @Override
@@ -60,8 +60,8 @@ public class Car implements Serializable {
                 "id=" + id +
                 ", brand='" + brand + '\'' +
                 ", model='" + model + '\'' +
-                ", color='" + color + '\'' +
-                ", licensePlateNumber='" + licensePlateNumber + '\'' +
+                ", color='" + colour + '\'' +
+                ", licensePlateNumber='" + vehicleRegistrationPlate + '\'' +
                 '}';
     }
 }

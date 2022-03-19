@@ -2,9 +2,7 @@ package sk.stuba.fei.uim.vsa.pr1a;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CarParkService extends AbstractCarParkService{
     @Override
@@ -64,6 +62,12 @@ public class CarParkService extends AbstractCarParkService{
     @Override
     public Object deleteCarPark(Long carParkId) {
         EntityManager em = emf.createEntityManager();
+        // delete floors first
+        getCarParkFloors(carParkId).forEach((floor)->{
+            CarParkFloor fl = (CarParkFloor) floor;
+            deleteCarParkFloor(carParkId,fl.getId().getFloorId());
+        });
+
         CarPark cp = em.find(CarPark.class, carParkId);
         em.getTransaction().begin();
         if (cp!=null){
@@ -71,16 +75,19 @@ public class CarParkService extends AbstractCarParkService{
         }
         em.getTransaction().commit();
         em.close();
-        return null;
+        return cp;
     }
 
     @Override
     public Object createCarParkFloor(Long carParkId, String floorIdentifier) {
         CarParkFloor carParkFloor = new CarParkFloor();
-        carParkFloor.setId(floorIdentifier);
 
         EntityManager em = emf.createEntityManager();
-        carParkFloor.setCarPark(em.find(CarPark.class, carParkId));
+        FloorId fid = new FloorId();
+        fid.setFloorId(floorIdentifier);
+        fid.setCarParkID(carParkId);
+
+        carParkFloor.setId(fid);
 
         em.getTransaction().begin();
 
@@ -99,65 +106,108 @@ public class CarParkService extends AbstractCarParkService{
     @Override
     public Object getCarParkFloor(Long carParkId, String floorIdentifier) {
         EntityManager em = emf.createEntityManager();
-        CarPark cp = em.find(CarPark.class, carParkId);
-        if(cp==null){
-            return null;
-        }
-        TypedQuery<CarParkFloor> q = em.createQuery("select c from CarParkFloor c where c.id=:id and c.carPark=:park", CarParkFloor.class);
-        q.setParameter("id",floorIdentifier);
-        q.setParameter("park",cp);
-        if(q.getResultList().size()>0){
-            CarParkFloor cpf = q.getSingleResult();
-            em.close();
-            return cpf;
-        }else {
-            em.close();
-            return null;
-        }
+        FloorId fid = new FloorId();
+        fid.setFloorId(floorIdentifier);
+        fid.setCarParkID(carParkId);
+        CarParkFloor cpf = em.find(CarParkFloor.class,fid);
+        em.close();
+        return cpf;
     }
 
     @Override
     public List<Object> getCarParkFloors(Long carParkId) {
         EntityManager em = emf.createEntityManager();
-        TypedQuery<Object> q = em.createQuery("select c from CarParkFloor c", Object.class);
-        List<Object> cpList = q.getResultList();
+        TypedQuery<Object> q = em.createQuery("select c from CarParkFloor c where c.id.carParkID=:id", Object.class);
+        q.setParameter("id",carParkId);
+
+        List<Object> cpfList = q.getResultList();
         em.close();
-        return cpList;
+        return cpfList;
     }
 
     @Override
     public Object deleteCarParkFloor(Long carParkId, String floorIdentifier) {
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        //delete spots first
+        getParkingSpots(carParkId,floorIdentifier).forEach((spot)->{
+            if (!em.contains(spot)) {
+                spot = em.merge(spot);
+            }
+            em.remove(spot);
+        });
         CarParkFloor cpf = (CarParkFloor) getCarParkFloor(carParkId, floorIdentifier);
         if(cpf != null){
-            EntityManager em = emf.createEntityManager();
             if (!em.contains(cpf)) {
                 cpf = em.merge(cpf);
             }
-            em.getTransaction().begin();
             em.remove(cpf);
             em.getTransaction().commit();
+            em.close();
+            return cpf;
         }
+        em.close();
         return null;
     }
 
     @Override
     public Object createParkingSpot(Long carParkId, String floorIdentifier, String spotIdentifier) {
+        CarParkFloor floor = (CarParkFloor) getCarParkFloor(carParkId,floorIdentifier);
+        if(floor != null){
+            EntityManager em = emf.createEntityManager();
+            TypedQuery<ParkingSpot> q = em.createQuery("select p from ParkingSpot p where p.carParkFloor.id.floorId=:floorid and p.carParkFloor.id.carParkID=:parkid and p.spotIdentifier=:spotid", ParkingSpot.class);
+            q.setParameter("floorid",floorIdentifier);
+            q.setParameter("spotid",spotIdentifier);
+            q.setParameter("parkid",carParkId);
+            if(q.getResultList().size()==0){
+                ParkingSpot spot = new ParkingSpot();
+                spot.setCarParkFloor(floor);
+                spot.setSpotIdentifier(spotIdentifier);
+                em.getTransaction().begin();
+                try {
+                    em.persist(spot);
+                    em.getTransaction().commit();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    em.getTransaction().rollback();
+                } finally {
+                    em.close();
+                }
+                return spot;
+            } else {
+                return q.getSingleResult();
+            }
+        }
         return null;
     }
 
     @Override
     public Object getParkingSpot(Long parkingSpotId) {
-        return null;
+        EntityManager em = emf.createEntityManager();
+        ParkingSpot ps = em.find(ParkingSpot.class, parkingSpotId);
+        em.close();
+        return ps;
     }
 
     @Override
     public List<Object> getParkingSpots(Long carParkId, String floorIdentifier) {
-        return null;
+        EntityManager em = emf.createEntityManager();
+        TypedQuery<Object> q = em.createQuery("select p from ParkingSpot p where p.carParkFloor.id.floorId=:floorid and p.carParkFloor.id.carParkID=:parkid", Object.class);
+        q.setParameter("floorid",floorIdentifier);
+        q.setParameter("parkid",carParkId);
+        List<Object> spots = q.getResultList();
+        em.close();
+        return spots;
     }
 
     @Override
     public Map<String, List<Object>> getParkingSpots(Long carParkId) {
-        return null;
+        EntityManager em = emf.createEntityManager();
+        TypedQuery<CarParkFloor> q = em.createQuery("select f from CarParkFloor f where f.id.carParkID=:parkid", CarParkFloor.class);
+        q.setParameter("parkid",carParkId);
+        Map<String, List<Object>> spots = new HashMap<>();
+        q.getResultList().forEach((floor)-> spots.put(floor.getId().getFloorId(), getParkingSpots(carParkId,floor.getId().getFloorId())));
+        return spots;
     }
 
     @Override
@@ -172,11 +222,29 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object deleteParkingSpot(Long parkingSpotId) {
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        //delete spots first
+        ParkingSpot spot = em.find(ParkingSpot.class, parkingSpotId);
+        if(spot!=null){
+            if (!em.contains(spot)) {
+                spot = em.merge(spot);
+            }
+            em.remove(spot);
+            em.getTransaction().commit();
+            em.close();
+            return spot;
+        }
+        em.close();
         return null;
     }
 
     @Override
     public Object createCar(Long userId, String brand, String model, String colour, String vehicleRegistrationPlate) {
+        Car car = new Car();
+        car.setBrand(brand);
+        car.setModel(model);
+        car.setColour(colour);
         return null;
     }
 
