@@ -12,7 +12,10 @@ public class Car implements Serializable {
     private String brand;
     private String model;
     private String colour;
+    @Column(unique = true)
     private String vehicleRegistrationPlate;
+    @ManyToOne(optional = false)
+    private User user;
 
     public void setId(Long id) {
         this.id = id;
@@ -63,5 +66,14 @@ public class Car implements Serializable {
                 ", color='" + colour + '\'' +
                 ", licensePlateNumber='" + vehicleRegistrationPlate + '\'' +
                 '}';
+    }
+
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

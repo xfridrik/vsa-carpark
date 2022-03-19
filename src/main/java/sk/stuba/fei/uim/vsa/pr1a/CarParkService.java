@@ -241,56 +241,145 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object createCar(Long userId, String brand, String model, String colour, String vehicleRegistrationPlate) {
-        Car car = new Car();
-        car.setBrand(brand);
-        car.setModel(model);
-        car.setColour(colour);
+        User u = (User) getUser(userId);
+        if(u!=null){
+            Car car = new Car();
+            car.setUser(u);
+            car.setBrand(brand);
+            car.setModel(model);
+            car.setColour(colour);
+            car.setVehicleRegistrationPlate(vehicleRegistrationPlate);
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            try {
+                em.persist(car);
+                em.getTransaction().commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+                em.getTransaction().rollback();
+            } finally {
+                em.close();
+            }
+            return car;
+        }
         return null;
     }
 
     @Override
     public Object getCar(Long carId) {
-        return null;
+        EntityManager em = emf.createEntityManager();
+        return em.find(Car.class, carId);
     }
 
     @Override
     public Object getCar(String vehicleRegistrationPlate) {
-        return null;
+        EntityManager em = emf.createEntityManager();
+        TypedQuery<Car> q = em.createQuery("select c from Car c where c.vehicleRegistrationPlate=:plate", Car.class);
+        q.setParameter("plate",vehicleRegistrationPlate);
+        if(q.getResultList().size()>0){
+            Car c = q.getSingleResult();
+            em.close();
+            return c;
+        }else {
+            em.close();
+            return null;
+        }
     }
 
     @Override
     public List<Object> getCars(Long userId) {
-        return null;
+        EntityManager em = emf.createEntityManager();
+        TypedQuery<Object> q = em.createQuery("select c from Car c where c.user.id=:userid", Object.class);
+        q.setParameter("userid",userId);
+        List<Object> cars = q.getResultList();
+        em.close();
+        return cars;
     }
 
     @Override
     public Object deleteCar(Long carId) {
-        return null;
+        EntityManager em = emf.createEntityManager();
+        Car c = em.find(Car.class, carId);
+        em.getTransaction().begin();
+        if (c!=null){
+            em.remove(c);
+        }
+        em.getTransaction().commit();
+        em.close();
+        return c;
     }
 
     @Override
     public Object createUser(String firstname, String lastname, String email) {
-        return null;
+        User user = new User();
+        user.setFirstname(firstname);
+        user.setLastname(lastname);
+        user.setEmail(email);
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        try {
+            em.persist(user);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
+        }
+        return user;
     }
 
     @Override
     public Object getUser(Long userId) {
-        return null;
+        EntityManager em = emf.createEntityManager();
+        User user = em.find(User.class, userId);
+        em.close();
+        return user;
     }
 
     @Override
     public Object getUser(String email) {
-        return null;
+        EntityManager em = emf.createEntityManager();
+        TypedQuery<User> q = em.createQuery("select u from User u where u.email=:email", User.class);
+        q.setParameter("email",email);
+
+        if(q.getResultList().size()>0){
+            User u = q.getSingleResult();
+            em.close();
+            return u;
+        }else {
+            em.close();
+            return null;
+        }
     }
 
     @Override
     public List<Object> getUsers() {
-        return null;
+        EntityManager em = emf.createEntityManager();
+        TypedQuery<Object> q = em.createQuery("select u from User u", Object.class);
+        List<Object> users = q.getResultList();
+        em.close();
+        return users;
     }
 
     @Override
     public Object deleteUser(Long userId) {
-        return null;
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        getCars(userId).forEach((car)->{
+            if (!em.contains(car)) {
+                car = em.merge(car);
+            }
+            em.remove(car);
+        });
+        User u = em.find(User.class, userId);
+
+        if (u!=null){
+            em.remove(u);
+        }
+        em.getTransaction().commit();
+        em.close();
+        return u;
     }
 
     @Override

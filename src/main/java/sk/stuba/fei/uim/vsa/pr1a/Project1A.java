@@ -20,14 +20,25 @@ public class Project1A {
 
         System.out.println(cps.getParkingSpots(3L));
 
-        //System.out.println(cps.getCarParkFloor(2L,"B").toString());
-        //System.out.println(cps.getCarParkFloors(1L));
-        //cps.deleteCarParkFloor(1L,"A");
+        cps.createUser("Jožo","mrkva","mrkva@mail");
+        cps.createUser("Fero","Malý","maly@mail");
+        cps.createUser("Dušo","Blaha","blaha@mail");
+        System.out.println(cps.getUser(6L));
+        System.out.println(cps.getUser("mrkva@mail"));
+        //DUPLICATE ENTRY SPADNE
+        cps.createCar(6L,"sufuzky","zidan","red","AB123NZ");
+        cps.createCar(6L,"sufuzky","zidan","yellow","AB124NZ");
+        cps.createCar(6L,"sufuzky","zidan","blue","AB125NZ");
 
+        System.out.println(cps.getCar(10L));
+        System.out.println(cps.getCar("AB123NZ"));
+        cps.deleteCar(9L);
+        System.out.println(cps.getCars(6L));
 
-        //System.out.println(cps.getCarPark("carpark"));
-        //cps.deleteCarPark(1L);
-        //System.out.println(cps.getCarParks().toString());
+        System.out.println(cps.getUsers());
+
+        cps.deleteUser(6L);
+
 
     }
 
