@@ -2,7 +2,9 @@ package sk.stuba.fei.uim.vsa.pr1a;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class CarParkService extends AbstractCarParkService{
     @Override
@@ -366,14 +368,15 @@ public class CarParkService extends AbstractCarParkService{
     public Object deleteUser(Long userId) {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
+        //delete user's cars
         getCars(userId).forEach((car)->{
             if (!em.contains(car)) {
                 car = em.merge(car);
             }
             em.remove(car);
         });
+        //delete user
         User u = em.find(User.class, userId);
-
         if (u!=null){
             em.remove(u);
         }
@@ -384,22 +387,79 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object createReservation(Long parkingSpotId, Long cardId) {
-        return null;
+        EntityManager em = emf.createEntityManager();
+
+        // kontrola ci uz auto niekde neparkuje
+        TypedQuery<Reservation> q = em.createQuery("select r from Reservation r where r.car.id=:carid and r.endDate = null ", Reservation.class);
+        q.setParameter("carid",cardId);
+        if(q.getResultList().size()>0){
+            return null;
+        }
+        // kontrola, ci je volny spot
+        TypedQuery<Reservation> q2 = em.createQuery("select r from Reservation r where r.parkingSpot.id=:spotid and r.endDate = null ", Reservation.class);
+        q2.setParameter("spotid",parkingSpotId);
+        if(q2.getResultList().size()>0){
+            return null;
+        }
+        //kontrola, ci existuje auto a spot
+        ParkingSpot ps = em.find(ParkingSpot.class,parkingSpotId);
+        Car car = em.find(Car.class,cardId);
+        if(car == null || ps == null){
+            return null;
+        }
+        //vytvorenie rezervacie
+        Reservation reservation = new Reservation();
+        reservation.setCar(car);
+        reservation.setParkingSpot(ps);
+        reservation.setStarDate(new Date(System.currentTimeMillis()));
+        persist(em,reservation);
+        return reservation;
     }
 
     @Override
     public Object endReservation(Long reservationId) {
+        EntityManager em = emf.createEntityManager();
+        Reservation res = em.find(Reservation.class,reservationId);
+        if(res != null && res.getEndDate()==null){
+            CarPark cp = em.find(CarPark.class,res.getParkingSpot().getCarParkFloor().getId().carParkID());
+            if(cp == null){
+                return null;
+            }
+            // price calculation
+            res.setEndDate(new Date(System.currentTimeMillis()));
+            long diff = res.getEndDate().getTime() - res.getStarDate().getTime();
+            Integer price = cp.getPricePerHour() * (int) Math.ceil(diff/3600000.0);
+            res.setPrice(price);
+            persist(em,res);
+            return res;
+        }
         return null;
     }
 
     @Override
     public List<Object> getReservations(Long parkingSpotId, Date date) {
-        return null;
+        EntityManager em = emf.createEntityManager();
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+        //get all reservations
+        TypedQuery<Reservation> q = em.createQuery("select r from Reservation r where r.parkingSpot.id=:spotid", Reservation.class);
+        q.setParameter("spotid",parkingSpotId);
+        List<Reservation> reservations = q.getResultList();
+        List<Object> resInDay = new ArrayList<>();
+        //check if reservation is in provided day
+        reservations.forEach((reservation -> {
+            if(fmt.format(reservation.getStarDate()).equals(fmt.format(date))){
+                resInDay.add(reservation);
+            }
+        }));
+        return resInDay;
     }
 
     @Override
     public List<Object> getMyReservations(Long userId) {
-        return null;
+        EntityManager em = emf.createEntityManager();
+        TypedQuery<Object> q = em.createQuery("select r from Reservation r where r.car.user.id=:uid", Object.class);
+        q.setParameter("uid",userId);
+        return q.getResultList();
     }
 
     @Override
@@ -431,4 +491,18 @@ public class CarParkService extends AbstractCarParkService{
     public Object deleteCoupon(Long couponId) {
         return null;
     }
+
+    private void persist(EntityManager em, Object object){
+        em.getTransaction().begin();
+        try {
+            em.persist(object);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
+        }
+    }
 }
+

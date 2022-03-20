@@ -16,7 +16,6 @@ public class CarParkFloor implements Serializable {
     @OneToMany(mappedBy = "carParkFloor")
     private List<ParkingSpot> spots;
 
-
     public FloorId getId() {
         return id;
     }

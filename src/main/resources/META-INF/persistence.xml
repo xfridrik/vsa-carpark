@@ -9,6 +9,7 @@
         <class>sk.stuba.fei.uim.vsa.pr1a.CarParkFloor</class>
         <class>sk.stuba.fei.uim.vsa.pr1a.ParkingSpot</class>
         <class>sk.stuba.fei.uim.vsa.pr1a.User</class>
+        <class>sk.stuba.fei.uim.vsa.pr1a.Reservation</class>
 
         <properties>
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/VSA_PR1"/>
