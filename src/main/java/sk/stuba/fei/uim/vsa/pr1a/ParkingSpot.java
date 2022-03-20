@@ -15,6 +15,9 @@ public class ParkingSpot implements Serializable {
 
     private String spotIdentifier;
 
+    @OneToOne
+    private Car currentCar;
+
 
     public Long getId() {
         return id;
@@ -39,5 +42,22 @@ public class ParkingSpot implements Serializable {
 
     public void setSpotIdentifier(String spotIdentifier) {
         this.spotIdentifier = spotIdentifier;
+    }
+
+    public Car getCurrentCar() {
+        return currentCar;
+    }
+
+    public void setCurrentCar(Car currentCar) {
+        this.currentCar = currentCar;
+    }
+
+    @Override
+    public String toString() {
+        return "ParkingSpot{" +
+                "id=" + id +
+                ", carParkFloor=" + carParkFloor +
+                ", spotIdentifier='" + spotIdentifier + '\'' +
+                '}';
     }
 }

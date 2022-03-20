@@ -13,13 +13,16 @@ public class Reservation implements Serializable {
 
     private Date starDate;
     private Date endDate;
-    private Integer price;
+    private Integer priceInCents;
 
     @ManyToOne(optional = false)
     private Car car;
 
     @ManyToOne(optional = false)
     private ParkingSpot parkingSpot;
+
+    @OneToOne
+    private DiscountCoupon usedDiscountCoupon;
 
     public Car getCar() {
         return car;
@@ -61,12 +64,12 @@ public class Reservation implements Serializable {
         this.endDate = endDate;
     }
 
-    public Integer getPrice() {
-        return price;
+    public Integer getPriceInCents() {
+        return priceInCents;
     }
 
-    public void setPrice(Integer price) {
-        this.price = price;
+    public void setPriceInCents(Integer priceInCents) {
+        this.priceInCents = priceInCents;
     }
 
     @Override
@@ -75,9 +78,17 @@ public class Reservation implements Serializable {
                 "id=" + id +
                 ", starDate=" + starDate +
                 ", endDate=" + endDate +
-                ", price=" + price +
+                ", price=" + priceInCents +
                 ", car=" + car +
                 ", parkingSpot=" + parkingSpot +
                 '}';
+    }
+
+    public DiscountCoupon getUsedDiscountCoupon() {
+        return usedDiscountCoupon;
+    }
+
+    public void setUsedDiscountCoupon(DiscountCoupon usedDiscountCoupon) {
+        this.usedDiscountCoupon = usedDiscountCoupon;
     }
 }

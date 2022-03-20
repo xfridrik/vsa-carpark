@@ -1,9 +1,6 @@
 package sk.stuba.fei.uim.vsa.pr1a;
 
 import javax.persistence.Embeddable;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import java.io.Serializable;
 
 @Embeddable

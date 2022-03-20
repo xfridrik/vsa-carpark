@@ -2,6 +2,7 @@ package sk.stuba.fei.uim.vsa.pr1a;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -17,6 +18,10 @@ public class User implements Serializable {
 
     @OneToMany(mappedBy = "user")
     private List<Car> cars;
+
+    @OneToMany(mappedBy = "user")
+    private Collection<DiscountCoupon> coupons;
+
 
     public List<Car> getCars() {
         return cars;
@@ -67,5 +72,13 @@ public class User implements Serializable {
                 ", email='" + email + '\'' +
                 ", cars=" + cars +
                 '}';
+    }
+
+    public Collection<DiscountCoupon> getCoupons() {
+        return coupons;
+    }
+
+    public void setCoupons(Collection<DiscountCoupon> coupons) {
+        this.coupons = coupons;
     }
 }
