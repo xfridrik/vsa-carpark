@@ -2,6 +2,7 @@ package sk.stuba.fei.uim.vsa.pr1a;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -80,5 +81,12 @@ public class User implements Serializable {
 
     public void setCoupons(Collection<DiscountCoupon> coupons) {
         this.coupons = coupons;
+    }
+
+    public void addCar(Car car) {
+        if(this.getCars()==null){
+            this.cars=new ArrayList<>();
+        }
+        this.cars.add(car);
     }
 }

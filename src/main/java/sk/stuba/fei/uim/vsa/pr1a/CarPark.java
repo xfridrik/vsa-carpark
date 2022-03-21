@@ -4,6 +4,7 @@ import org.eclipse.persistence.annotations.PrimaryKey;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -13,10 +14,12 @@ public class CarPark implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @Column(unique = true)
     private String name;
     private String address;
+    @Column(nullable = false)
     private Integer pricePerHour;
-    @OneToMany
+    @OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
     @JoinColumn(name="CARPARKID")
     private List<CarParkFloor> floors;
 
@@ -50,6 +53,13 @@ public class CarPark implements Serializable {
 
     public void setPricePerHour(Integer pricePerHour) {
         this.pricePerHour = pricePerHour;
+    }
+
+    public void addFloor(CarParkFloor floor) {
+        if(this.getFloors()==null){
+            this.floors=new ArrayList<>();
+        }
+        this.floors.add(floor);
     }
 
 

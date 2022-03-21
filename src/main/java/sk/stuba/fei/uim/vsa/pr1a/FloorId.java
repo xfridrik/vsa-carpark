@@ -1,5 +1,6 @@
 package sk.stuba.fei.uim.vsa.pr1a;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 
@@ -8,6 +9,11 @@ public class FloorId implements Serializable {
     private String floorId;
     private Long carParkID;
 
+    public FloorId(String floorId, Long carParkID) {
+        this.floorId = floorId;
+        this.carParkID = carParkID;
+    }
+    public FloorId(){};
 
     public String getFloorId() {
         return floorId;

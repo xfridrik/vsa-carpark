@@ -2,7 +2,7 @@ package sk.stuba.fei.uim.vsa.pr1a;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -37,5 +37,12 @@ public class CarParkFloor implements Serializable {
 
     public void setSpots(List<ParkingSpot> spots) {
         this.spots = spots;
+    }
+
+    public void addSpot(ParkingSpot spot) {
+        if(this.getSpots()==null){
+            this.spots=new ArrayList<>();
+        }
+        this.spots.add(spot);
     }
 }
