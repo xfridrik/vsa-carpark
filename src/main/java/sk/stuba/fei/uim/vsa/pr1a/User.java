@@ -17,11 +17,11 @@ public class User implements Serializable {
     @Column(unique=true)
     private String email;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.ALL}, orphanRemoval = true)
     private List<Car> cars;
 
     @OneToMany(mappedBy = "user")
-    private Collection<DiscountCoupon> coupons;
+    private Collection<DiscountCoupon> coupons = new ArrayList<>();
 
 
     public List<Car> getCars() {

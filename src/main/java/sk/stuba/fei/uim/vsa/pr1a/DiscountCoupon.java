@@ -56,4 +56,15 @@ public class DiscountCoupon implements Serializable {
     public void setDiscount(Integer discount) {
         this.discount = discount;
     }
+
+    @Override
+    public String toString() {
+        return "DiscountCoupon{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", discount=" + discount +
+                ", user=" + user +
+                ", usedInReservation=" + usedInReservation +
+                '}';
+    }
 }

@@ -15,10 +15,10 @@ public class Reservation implements Serializable {
     private Date endDate;
     private Integer priceInCents;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     private Car car;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     private ParkingSpot parkingSpot;
 
     @OneToOne
