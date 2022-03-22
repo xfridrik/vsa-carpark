@@ -4,8 +4,9 @@ public class Project1A {
 
     public static void main(String[] args) throws InterruptedException {
         CarParkService cps = new CarParkService();
-        //deleteCarparkWithReservations();
-        //deleteFloorWithReservations();
+        deleteUserWithReservations();
+        deleteCarparkWithReservations();
+        deleteFloorWithReservations();
         deleteSpotWithReservations();
         //createCarPark();
        // getCarPark();
@@ -270,6 +271,34 @@ public class Project1A {
 
         System.out.println("\n----------get users created reservations after delete");
         System.out.println(cps.getMyReservations(u1.getId()));
+    }
+
+    public static void deleteUserWithReservations() {
+        CarParkService cps = new CarParkService();
+
+        System.out.println("\n--------Creating Carparks");
+        CarPark cp1 = (CarPark) cps.createCarPark("carpark","petržalka", 8);
+        System.out.println(cp1);
+        CarParkFloor fl1 = (CarParkFloor) cps.createCarParkFloor(cp1.getId(),"F1");
+
+        ParkingSpot spot = (ParkingSpot) cps.createParkingSpot(cp1.getId(),"F1","S1");
+        ParkingSpot spot2 = (ParkingSpot) cps.createParkingSpot(cp1.getId(),"F1","S2");
+
+
+        System.out.println("\n----------creating reservations");
+        User u1 = (User) cps.createUser("mišo", "mitúch", "mm");
+        Car car = (Car) cps.createCar(u1.getId(),"sufuzky","zidan","red","AB123NZ");
+        Car car2 = (Car) cps.createCar(u1.getId(),"sufuzky2","zidan2","red","AB124NZ");
+
+        Reservation r = (Reservation) cps.createReservation(spot.getId(), car.getId());
+        Reservation r2 = (Reservation) cps.createReservation(spot2.getId(), car2.getId());
+        cps.endReservation(r2.getId());
+
+        System.out.println("\n----------get users created reservations");
+        System.out.println(cps.getMyReservations(u1.getId()));
+
+        System.out.println("\n----------delete user");
+        System.out.println(cps.deleteUser(u1.getId()));
     }
 
     public static void createCars() {

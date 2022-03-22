@@ -464,10 +464,27 @@ public class CarParkService extends AbstractCarParkService{
     @Override
     public Object deleteCar(Long carId) {
         EntityManager em = emf.createEntityManager();
+
         Car c = em.find(Car.class, carId);
         if(c==null){em.close();return null;}
+
+        //End active reservations with this spot
+        TypedQuery<Reservation> r = em.createQuery("SELECT r from Reservation r where r.priceInCents = null and r.car.id = :spotid", Reservation.class);
+        r.setParameter("spotid",carId);
+
+        //get all reservations to remove this spot
+        TypedQuery<Reservation> rAll = em.createQuery("SELECT r from Reservation r where r.car.id = :spotid", Reservation.class);
+        rAll.setParameter("spotid",carId);
+
         try {
             em.getTransaction().begin();
+            //end reservations
+            r.getResultList().forEach((reservation)-> this.endReservation(reservation.getId()));
+            rAll.getResultList().forEach((reservation)->{
+                reservation.setCar(null);
+                em.persist(reservation);
+            });
+
             // delete car from user
             c.getUser().getCars().remove(c);
             em.merge(c.getUser());
@@ -556,6 +573,7 @@ public class CarParkService extends AbstractCarParkService{
             em.getTransaction().begin();
             u = em.find(User.class, userId);
             if (u!=null){
+                u.getCars().forEach((car)-> deleteCar(car.getId()));
                 em.remove(u);
             }
             em.getTransaction().commit();
@@ -632,7 +650,9 @@ public class CarParkService extends AbstractCarParkService{
             // price calculation
             res.setEndDate(new Date(System.currentTimeMillis()));
             long diff = res.getEndDate().getTime() - res.getStarDate().getTime();
+            if (diff<10) diff = 10;
             Integer price = cp.getPricePerHour() * (int) Math.ceil(diff/3600000.0) * 100;
+            //System.out.println(diff);
             res.setPriceInCents(price);
             res.getParkingSpot().setCurrentCar(null);
             persist(em,res);
