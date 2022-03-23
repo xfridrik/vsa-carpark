@@ -8,7 +8,7 @@ public class Project1A {
         //deleteCarparkWithReservations();
         //deleteFloorWithReservations();
         //deleteSpotWithReservations();
-        getOccupiedSpots();
+        getSpots();
         //createCarPark();
        // getCarPark();
         //removeCoupons();
@@ -273,7 +273,7 @@ public class Project1A {
         System.out.println("\n----------get users created reservations after delete");
         System.out.println(cps.getMyReservations(u1.getId()));
     }
-    public static void getOccupiedSpots() {
+    public static void getSpots() {
         CarParkService cps = new CarParkService();
 
         System.out.println("\n--------Creating Carparks");
@@ -304,12 +304,19 @@ public class Project1A {
         System.out.println("\n----------get occupied spots 3");
         System.out.println(cps.getOccupiedParkingSpots("carpark"));
 
+        System.out.println("\n----------get Available spots 0");
+        System.out.println(cps.getAvailableParkingSpots("carpark"));
+
         cps.endReservation(r.getId());
         cps.endReservation(r2.getId());
         cps.endReservation(r3.getId());
 
         System.out.println("\n----------get occupied spots 0");
         System.out.println(cps.getOccupiedParkingSpots("carpark"));
+
+        System.out.println("\n----------get Available spots 3");
+        System.out.println(cps.getAvailableParkingSpots("carpark"));
+
     }
 
     public static void deleteUserWithReservations() {

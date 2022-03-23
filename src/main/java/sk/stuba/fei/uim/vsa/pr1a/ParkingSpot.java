@@ -2,6 +2,7 @@ package sk.stuba.fei.uim.vsa.pr1a;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
 @Table(name = "PARKING_SPOT")
@@ -59,5 +60,18 @@ public class ParkingSpot implements Serializable {
                 ", carParkFloor=" + carParkFloor +
                 ", spotIdentifier='" + spotIdentifier + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ParkingSpot that = (ParkingSpot) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

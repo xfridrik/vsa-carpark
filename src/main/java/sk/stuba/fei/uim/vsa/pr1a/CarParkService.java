@@ -330,15 +330,13 @@ public class CarParkService extends AbstractCarParkService{
             em.close();
             return null;
         }
-        Map<String, List<Object>> availableSpots = new HashMap<>();
-        // Iterate Floors
-        TypedQuery<CarParkFloor> q = em.createQuery("select f from CarParkFloor f where f.id.carParkID=:cpid", CarParkFloor.class);
-        q.setParameter("cpid",cp.getId());
-        q.getResultList().forEach((floor)->{
-            // get spots on floor
-            TypedQuery<Object> q2 = em.createQuery("select s from ParkingSpot s where s.currentCar = null and s.carParkFloor.id = :floorid", Object.class);
-            q2.setParameter("floorid",floor.getId());
-            availableSpots.put(floor.getId().getFloorId(),q2.getResultList());
+
+        Map<String, List<Object>> availableSpots = getParkingSpots(cp.getId());
+        Map<String, List<Object>> occupiedSpots = getOccupiedParkingSpots(carParkName);
+
+        availableSpots.forEach((floorIdentifier,spots)->{
+            // Delete occupied spots on floor
+            spots.removeAll(occupiedSpots.get(floorIdentifier));
         });
         em.close();
         return availableSpots;
