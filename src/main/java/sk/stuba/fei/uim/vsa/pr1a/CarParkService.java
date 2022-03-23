@@ -87,6 +87,11 @@ public class CarParkService extends AbstractCarParkService{
     }
 
     @Override
+    public Object updateCarPark(Object carPark) {
+        return null;
+    }
+
+    @Override
     public Object deleteCarPark(Long carParkId) {
         if(carParkId == null) return null;
 
@@ -172,6 +177,12 @@ public class CarParkService extends AbstractCarParkService{
     }
 
     @Override
+    public Object getCarParkFloor(Long carParkFloorId) {
+        //implementovaná composite key
+        return null;
+    }
+
+    @Override
     public List<Object> getCarParkFloors(Long carParkId) {
         EntityManager em = emf.createEntityManager();
         CarPark cp;
@@ -185,6 +196,11 @@ public class CarParkService extends AbstractCarParkService{
         if(cp==null) {em.close(); return null;}
         em.close();
         return new ArrayList<>(cp.getFloors());
+    }
+
+    @Override
+    public Object updateCarParkFloor(Object carParkFloor) {
+        return null;
     }
 
     @Override
@@ -232,13 +248,18 @@ public class CarParkService extends AbstractCarParkService{
     }
 
     @Override
+    public Object deleteCarParkFloor(Long carParkFloorId) {
+        //implementovaná composite key
+        return null;
+    }
+
+    @Override
     public Object createParkingSpot(Long carParkId, String floorIdentifier, String spotIdentifier) {
         CarParkFloor floor = (CarParkFloor) getCarParkFloor(carParkId,floorIdentifier);
         if (floor == null) return null;
 
         EntityManager em = emf.createEntityManager();
-        TypedQuery<ParkingSpot> q = em.createQuery("select p from ParkingSpot p where p.carParkFloor.id.floorId=:floorid and p.carParkFloor.id.carParkID=:parkid and p.spotIdentifier=:spotid", ParkingSpot.class);
-        q.setParameter("floorid",floorIdentifier);
+        TypedQuery<ParkingSpot> q = em.createQuery("select p from ParkingSpot p where p.carParkFloor.id.carParkID=:parkid and p.spotIdentifier=:spotid", ParkingSpot.class);
         q.setParameter("spotid",spotIdentifier);
         q.setParameter("parkid",carParkId);
         if(q.getResultList().size()==0){
@@ -341,6 +362,11 @@ public class CarParkService extends AbstractCarParkService{
         });
         em.close();
         return occupiedSpots;
+    }
+
+    @Override
+    public Object updateParkingSpot(Object parkingSpot) {
+        return null;
     }
 
     @Override
@@ -460,6 +486,11 @@ public class CarParkService extends AbstractCarParkService{
     }
 
     @Override
+    public Object updateCar(Object car) {
+        return null;
+    }
+
+    @Override
     public Object deleteCar(Long carId) {
         EntityManager em = emf.createEntityManager();
 
@@ -560,6 +591,11 @@ public class CarParkService extends AbstractCarParkService{
         List<Object> users = q.getResultList();
         em.close();
         return users;
+    }
+
+    @Override
+    public Object updateUser(Object user) {
+        return null;
     }
 
     //TO REFACTOR
@@ -682,11 +718,16 @@ public class CarParkService extends AbstractCarParkService{
     @Override
     public List<Object> getMyReservations(Long userId) {
         EntityManager em = emf.createEntityManager();
-        TypedQuery<Object> q = em.createQuery("select r from Reservation r where r.car.user.id=:uid", Object.class);
+        TypedQuery<Object> q = em.createQuery("select r from Reservation r where r.car.user.id=:uid and r.endDate = null", Object.class);
         q.setParameter("uid",userId);
         List<Object> reservations = q.getResultList();
         em.close();
         return reservations;
+    }
+
+    @Override
+    public Object updateReservation(Object reservation) {
+        return null;
     }
 
     @Override

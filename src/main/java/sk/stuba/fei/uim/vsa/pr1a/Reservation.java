@@ -79,8 +79,8 @@ public class Reservation implements Serializable {
                 ", starDate=" + starDate +
                 ", endDate=" + endDate +
                 ", price=" + priceInCents +
-                ", car=" + car +
-                ", parkingSpot=" + parkingSpot +
+                ", car=" + car.getVehicleRegistrationPlate() +
+                ", parkingSpot=" + parkingSpot.getSpotIdentifier() +
                 '}';
     }
 
