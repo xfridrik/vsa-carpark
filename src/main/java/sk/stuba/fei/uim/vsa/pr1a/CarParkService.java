@@ -88,7 +88,17 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object updateCarPark(Object carPark) {
-        return null;
+        CarPark cp;
+        if(carPark instanceof CarPark){
+            cp = (CarPark) carPark;
+        }else return null;
+        EntityManager em = emf.createEntityManager();
+
+        em.getTransaction().begin();
+        em.merge(cp);
+        em.getTransaction().commit();
+        em.close();
+        return cp;
     }
 
     @Override
@@ -200,7 +210,17 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object updateCarParkFloor(Object carParkFloor) {
-        return null;
+        CarParkFloor cpf;
+        if(carParkFloor instanceof CarParkFloor){
+            cpf = (CarParkFloor) carParkFloor;
+        }else return null;
+        EntityManager em = emf.createEntityManager();
+
+        em.getTransaction().begin();
+        em.merge(cpf);
+        em.getTransaction().commit();
+        em.close();
+        return cpf;
     }
 
     @Override
@@ -364,7 +384,17 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object updateParkingSpot(Object parkingSpot) {
-        return null;
+        ParkingSpot spot;
+        if(parkingSpot instanceof ParkingSpot){
+            spot = (ParkingSpot) parkingSpot;
+        }else return null;
+        EntityManager em = emf.createEntityManager();
+
+        em.getTransaction().begin();
+        em.merge(spot);
+        em.getTransaction().commit();
+        em.close();
+        return spot;
     }
 
     @Override
@@ -485,7 +515,17 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object updateCar(Object car) {
-        return null;
+        Car c;
+        if(car instanceof Car){
+            c = (Car) car;
+        }else return null;
+
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        em.merge(c);
+        em.getTransaction().commit();
+        em.close();
+        return c;
     }
 
     @Override
@@ -593,10 +633,19 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object updateUser(Object user) {
-        return null;
+        User u;
+        if(user instanceof User){
+            u = (User) user;
+        }else return null;
+        EntityManager em = emf.createEntityManager();
+
+        em.getTransaction().begin();
+        em.merge(u);
+        em.getTransaction().commit();
+        em.close();
+        return u;
     }
 
-    //TO REFACTOR
     @Override
     public Object deleteUser(Long userId) {
         EntityManager em = emf.createEntityManager();
@@ -725,7 +774,17 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object updateReservation(Object reservation) {
-        return null;
+        Reservation r;
+        if(reservation instanceof Reservation){
+            r = (Reservation) reservation;
+        }else return null;
+        EntityManager em = emf.createEntityManager();
+
+        em.getTransaction().begin();
+        em.merge(r);
+        em.getTransaction().commit();
+        em.close();
+        return r;
     }
 
     @Override

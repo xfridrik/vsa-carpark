@@ -8,7 +8,8 @@ public class Project1A {
         //deleteCarparkWithReservations();
         //deleteFloorWithReservations();
         //deleteSpotWithReservations();
-        getSpots();
+        //getSpots();
+        update();
         //createCarPark();
        // getCarPark();
         //removeCoupons();
@@ -317,6 +318,13 @@ public class Project1A {
         System.out.println("\n----------get Available spots 3");
         System.out.println(cps.getAvailableParkingSpots("carpark"));
 
+    }
+
+    public static void update() {
+        CarParkService cps = new CarParkService();
+        CarPark cp = (CarPark) cps.createCarPark("Name1","Addr",5);
+        cp.setName("UPDATE");
+        cps.updateCarPark(cp);
     }
 
     public static void deleteUserWithReservations() {
