@@ -333,9 +333,7 @@ public class CarParkService extends AbstractCarParkService{
         }
         Map<String, List<Object>> occupiedSpots = new HashMap<>();
         // Iterate Floors
-        TypedQuery<CarParkFloor> q = em.createQuery("select f from CarParkFloor f where f.id.carParkID=:cpid", CarParkFloor.class);
-        q.setParameter("cpid",cp.getId());
-        q.getResultList().forEach((floor)->{
+        cp.getFloors().forEach((floor)->{
             // get spots on floor
             TypedQuery<Object> q2 = em.createQuery("select s from ParkingSpot s join Reservation r on r.parkingSpot.id=s.id where s.carParkFloor.id=:floorid and r.endDate = null ", Object.class);
             q2.setParameter("floorid",floor.getId());
@@ -642,7 +640,7 @@ public class CarParkService extends AbstractCarParkService{
             em.close();
             return null;
         }
-        if(res.getEndDate()==null){
+        if(res.getEndDate()==null && res.getParkingSpot() != null){
             CarPark cp = em.find(CarPark.class,res.getParkingSpot().getCarParkFloor().getId().carParkID());
             if(cp == null){
                 return null;
@@ -805,21 +803,10 @@ public class CarParkService extends AbstractCarParkService{
         return null;
     }
 
-//ZATVOR VSADE EM!!!!!!!!
     private void persist(EntityManager em, Object object){
         em.getTransaction().begin();
         try {
             em.persist(object);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            e.printStackTrace();
-            em.getTransaction().rollback();
-        }
-    }
-    private void remove(EntityManager em, Object object){
-        em.getTransaction().begin();
-        try {
-            em.remove(object);
             em.getTransaction().commit();
         } catch (Exception e) {
             e.printStackTrace();
