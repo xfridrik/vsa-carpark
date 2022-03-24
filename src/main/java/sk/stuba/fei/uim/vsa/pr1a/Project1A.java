@@ -3,17 +3,17 @@ package sk.stuba.fei.uim.vsa.pr1a;
 import sk.stuba.fei.uim.vsa.pr1a.entities.*;
 
 public class Project1A {
-    static CarParkService cps = new CarParkService();
 
     public static void main(String[] args) throws InterruptedException {
         CarParkService cps = new CarParkService();
+        CliApp app = new CliApp();
+       // app.start();
         //deleteUserWithReservations();
         //deleteCarparkWithReservations();
         //deleteFloorWithReservations();
         //deleteSpotWithReservations();
         //getSpots();
-        //update();
-        CLIapp();
+        update();
         //createCarPark();
        // getCarPark();
         //removeCoupons();
@@ -328,6 +328,7 @@ public class Project1A {
         CarParkService cps = new CarParkService();
         CarPark cp = (CarPark) cps.createCarPark("Name1","Addr",5);
         cp.setName("UPDATE");
+        cp.setId(9L);
         cps.updateCarPark(cp);
     }
 
@@ -398,183 +399,5 @@ public class Project1A {
         System.out.println(cps.getCoupon(coupon2.getId()));
 
     }
-
-    public static void CLIapp() {
-        mainLoop: while(true){
-            System.out.println("Zadaj typ príkazu - C -create, R - read, U - update, D - delete, Q - quit");
-            String input = KeyboardInput.readString("").trim();
-            switch (input){
-                case "C":
-                    System.out.println("Vyber entitu - car, carpark, floor, user, spot, reservation, coupon alebo Q pre vrátenie sa");
-                    String sInput = KeyboardInput.readString("").trim();
-                    switch (sInput){
-                        case "car":
-                            CLICreateCar();
-                            break;
-                        case "carpark":
-                            CLICreateCarPark();
-                            break;
-                        case "floor":
-                            CLICreateFloor();
-                            break;
-                        case "user":
-                            CLICreateUser();
-                            break;
-                        case "spot":
-                            CLICreateSpot();
-                            break;
-                        case "reservation":
-                            CLICreateReservation();
-                            break;
-                        case "coupon":
-                            CLICreateCoupon();
-                            break;
-                        case  "Q":
-                            break;
-                        default:
-                            System.out.println("Nesprávny príkaz");
-                            break;
-                    }
-                    break;
-                case "R":
-                    System.out.println("read");
-                    break;
-                case  "Q":
-                    break mainLoop;
-                default:
-                    System.out.println("Nesprávny príkaz");
-
-            }
-
-        }
-    }
-
-    private static void CLICreateSpot() {
-        Long carparkId = (long) KeyboardInput.readInt("Zadaj ID carparku");
-        String floorId = KeyboardInput.readString("Zadaj identifikátor poschodia").trim();
-        String spotId = KeyboardInput.readString("Zadaj identifikátor miesta").trim();
-
-        ParkingSpot spot;
-        try{
-            spot = (ParkingSpot) cps.createParkingSpot(carparkId,floorId,spotId);
-        }catch (Exception e){
-            spot = null;
-        }
-        if(spot == null){
-            System.out.println("Nepodarilo sa vytvoriť, skontroluj zadané údaje a skús znova");
-        }else {
-            System.out.println("Vytvorený objekt:"+spot.toString());
-        }
-
-    }
-
-    private static void CLICreateCoupon() {
-        String name = KeyboardInput.readString("Zadaj názov").trim();
-        Integer discount = KeyboardInput.readInt("Zadaj zľavu");
-        DiscountCoupon coupon;
-        try{
-            coupon = (DiscountCoupon) cps.createDiscountCoupon(name,discount);
-        }catch (Exception e){
-            coupon = null;
-        }
-        if(coupon == null){
-            System.out.println("Nepodarilo sa vytvoriť, skontroluj zadané údaje a skús znova");
-        }else {
-            System.out.println("Vytvorený objekt:"+coupon.toString());
-        }
-
-    }
-
-    private static void CLICreateReservation() {
-        Long spot = (long) KeyboardInput.readInt("Zadaj ID parkovacieho miesta");
-        Long car = (long) KeyboardInput.readInt("Zadaj ID auta");
-
-        Reservation reservation;
-        try{
-            reservation = (Reservation) cps.createReservation(spot,car);
-        }catch (Exception e){
-            reservation = null;
-        }
-        if(reservation == null){
-            System.out.println("Nepodarilo sa vytvoriť, skontroluj zadané údaje a skús znova");
-        }else {
-            System.out.println("Vytvorený objekt:"+reservation.toString());
-        }
-    }
-
-    private static void CLICreateUser() {
-        String name = KeyboardInput.readString("Zadaj meno").trim();
-        String last = KeyboardInput.readString("Zadaj priezvisko").trim();
-        String email = KeyboardInput.readString("Zadaj email").trim();
-        User user;
-        try{
-            user = (User) cps.createUser(name, last, email);
-        }catch (Exception e){
-            user = null;
-        }
-        if(user == null){
-            System.out.println("Nepodarilo sa vytvoriť, skontroluj zadané údaje a skús znova");
-        }else {
-            System.out.println("Vytvorený objekt:"+user.toString());
-        }
-
-    }
-
-    private static void CLICreateFloor() {
-        Long carparkId = (long) KeyboardInput.readInt("Zadaj ID carparku");
-        String id = KeyboardInput.readString("Zadaj identifikátor podlažia").trim();
-
-        CarParkFloor floor;
-        try{
-            floor = (CarParkFloor) cps.createCarParkFloor(carparkId,id);
-        }catch (Exception e){
-            floor = null;
-        }
-        if(floor == null){
-            System.out.println("Nepodarilo sa vytvoriť, skontroluj zadané údaje a skús znova");
-        }else {
-            System.out.println("Vytvorený objekt:"+floor.toString());
-        }
-    }
-
-    private static void CLICreateCarPark() {
-        String name = KeyboardInput.readString("Zadaj názov").trim();
-        String address = KeyboardInput.readString("Zadaj adresu").trim();
-        Integer price = KeyboardInput.readInt("Zadaj cenu parkovného");
-
-        CarPark carpark;
-        try{
-            carpark = (CarPark) cps.createCarPark(name, address, price);
-        }catch (Exception e){
-            carpark = null;
-        }
-        if(carpark == null){
-            System.out.println("Nepodarilo sa vytvoriť, skontroluj zadané údaje a skús znova");
-        }else {
-            System.out.println("Vytvorený objekt:"+carpark.toString());
-        }
-
-    }
-
-    public static void CLICreateCar() {
-        Long userId = (long) KeyboardInput.readInt("Zadaj ID užívateľa");
-        String brand = KeyboardInput.readString("Zadaj značku").trim();
-        String model = KeyboardInput.readString("Zadaj model").trim();
-        String colour = KeyboardInput.readString("Zadaj farbu").trim();
-        String ecv = KeyboardInput.readString("Zadaj EČV").trim();
-        Car car;
-        try{
-            car = (Car) cps.createCar(userId,brand,model,colour,ecv);
-        }catch (Exception e){
-            car = null;
-        }
-        if(car == null){
-            System.out.println("Nepodarilo sa vytvoriť, skontroluj zadané údaje a skús znova");
-        }else {
-            System.out.println("Vytvorený objekt:"+car.toString());
-        }
-    }
-
-
 
 }
