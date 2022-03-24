@@ -4,13 +4,13 @@
              xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
     <persistence-unit name="vsa-project-a" transaction-type="RESOURCE_LOCAL">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-        <class>sk.stuba.fei.uim.vsa.pr1a.Car</class>
-        <class>sk.stuba.fei.uim.vsa.pr1a.CarPark</class>
-        <class>sk.stuba.fei.uim.vsa.pr1a.CarParkFloor</class>
-        <class>sk.stuba.fei.uim.vsa.pr1a.ParkingSpot</class>
-        <class>sk.stuba.fei.uim.vsa.pr1a.User</class>
-        <class>sk.stuba.fei.uim.vsa.pr1a.Reservation</class>
-        <class>sk.stuba.fei.uim.vsa.pr1a.DiscountCoupon</class>
+        <class>sk.stuba.fei.uim.vsa.pr1a.entities.Car</class>
+        <class>sk.stuba.fei.uim.vsa.pr1a.entities.CarPark</class>
+        <class>sk.stuba.fei.uim.vsa.pr1a.entities.CarParkFloor</class>
+        <class>sk.stuba.fei.uim.vsa.pr1a.entities.ParkingSpot</class>
+        <class>sk.stuba.fei.uim.vsa.pr1a.entities.User</class>
+        <class>sk.stuba.fei.uim.vsa.pr1a.entities.Reservation</class>
+        <class>sk.stuba.fei.uim.vsa.pr1a.entities.DiscountCoupon</class>
 
         <properties>
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/VSA_PR1"/>

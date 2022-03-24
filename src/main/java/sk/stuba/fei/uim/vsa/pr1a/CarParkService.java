@@ -1,5 +1,7 @@
 package sk.stuba.fei.uim.vsa.pr1a;
 
+import sk.stuba.fei.uim.vsa.pr1a.entities.*;
+
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;

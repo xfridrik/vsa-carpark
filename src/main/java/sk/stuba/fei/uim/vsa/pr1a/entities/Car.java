@@ -1,4 +1,4 @@
-package sk.stuba.fei.uim.vsa.pr1a;
+package sk.stuba.fei.uim.vsa.pr1a.entities;
 
 import javax.persistence.*;
 import java.io.Serializable;

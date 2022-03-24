@@ -1,11 +1,8 @@
-package sk.stuba.fei.uim.vsa.pr1a;
-
-import org.eclipse.persistence.annotations.PrimaryKey;
+package sk.stuba.fei.uim.vsa.pr1a.entities;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Entity
