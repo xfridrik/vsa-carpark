@@ -152,21 +152,102 @@ public class CliApp {
 
 
     private void CLICupdateReservations() {
+        Reservation reservation;
+        Reservation newReservation = new Reservation();
+        newReservation.setId((long) KeyboardInput.readInt("Zadaj ID rezervácie"));
+        //newReservation.setSpotIdentifier(KeyboardInput.readString("Zadaj nový identifikátor miesta").trim());
+        try{
+            reservation = (Reservation) cps.updateUser(newReservation);
+        }catch (Exception e){
+            reservation = null;
+        }
+        if(reservation == null){
+            System.out.println("Nepodarilo sa upraviť objekt, skontroluj zadané údaje a skús znova");
+        }else {
+            System.out.println("Upravený objekt:"+reservation.toString());
+        }
+
     }
 
     private void CLICupdateFloor() {
+        System.out.println("Podlažie nemá atribúty na upravenie");
     }
 
     private void CLICupdateSpot() {
+        ParkingSpot spot;
+        ParkingSpot newSpot = new ParkingSpot();
+        newSpot.setId((long) KeyboardInput.readInt("Zadaj ID parkovacieho miesta"));
+        newSpot.setSpotIdentifier(KeyboardInput.readString("Zadaj nový identifikátor miesta").trim());
+        try{
+            spot = (ParkingSpot) cps.updateUser(newSpot);
+        }catch (Exception e){
+            spot = null;
+        }
+        if(spot == null){
+            System.out.println("Nepodarilo sa upraviť objekt, skontroluj zadané údaje a skús znova");
+        }else {
+            System.out.println("Upravený objekt:"+spot.toString());
+        }
+
     }
 
     private void CLICupdateUser() {
+        User user;
+        User newUser = new User();
+        newUser.setId((long) KeyboardInput.readInt("Zadaj ID užívateľa"));
+        newUser.setFirstname(KeyboardInput.readString("Zadaj nové meno").trim());
+        newUser.setLastname(KeyboardInput.readString("Zadaj nové priezvisko").trim());
+        newUser.setEmail(KeyboardInput.readString("Zadaj nový email").trim());
+        try{
+            user = (User) cps.updateUser(newUser);
+        }catch (Exception e){
+            user = null;
+        }
+        if(user == null){
+            System.out.println("Nepodarilo sa upraviť objekt, skontroluj zadané údaje a skús znova");
+        }else {
+            System.out.println("Upravený objekt:"+user.toString());
+        }
+
     }
 
     private void CLIupdateCarPark() {
+        CarPark carPark;
+        CarPark newCarPark = new CarPark();
+        newCarPark.setId((long) KeyboardInput.readInt("Zadaj ID carparku"));
+        newCarPark.setAddress(KeyboardInput.readString("Zadaj novú adresu").trim());
+        newCarPark.setPricePerHour(KeyboardInput.readInt("Zadaj novú cenu"));
+        try{
+            carPark = (CarPark) cps.updateCarPark(newCarPark);
+        }catch (Exception e){
+            carPark = null;
+        }
+        if(carPark == null){
+            System.out.println("Nepodarilo sa upraviť objekt, skontroluj zadané údaje a skús znova");
+        }else {
+            System.out.println("Upravený objekt:"+carPark.toString());
+        }
+
     }
 
     private void CLIupdateCar() {
+        Car car;
+        Car newCar = new Car();
+        newCar.setId((long) KeyboardInput.readInt("Zadaj ID auta"));
+        newCar.setBrand(KeyboardInput.readString("Zadaj novú značku auta").trim());
+        newCar.setModel(KeyboardInput.readString("Zadaj nový model").trim());
+        newCar.setColour(KeyboardInput.readString("Zadaj novú farbu").trim());
+        try{
+            car = (Car) cps.updateCar(newCar);
+        }catch (Exception e){
+            car = null;
+        }
+        if(car == null){
+            System.out.println("Nepodarilo sa upraviť objekt, skontroluj zadané údaje a skús znova");
+        }else {
+            System.out.println("Upravený objekt:"+car.toString());
+        }
+
     }
 
     private void CLICdelCoupon() {

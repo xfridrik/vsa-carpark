@@ -95,12 +95,18 @@ public class CarParkService extends AbstractCarParkService{
             cp = (CarPark) carPark;
         }else return null;
         EntityManager em = emf.createEntityManager();
+        CarPark currentCarPark = em.find(CarPark.class,(cp.getId()));
+        if(currentCarPark == null){em.close(); return null;}
+
+        currentCarPark.setName(cp.getName());
+        currentCarPark.setAddress(cp.getAddress());
+        currentCarPark.setPricePerHour(cp.getPricePerHour());
 
         em.getTransaction().begin();
-        em.merge(cp);
+        em.merge(currentCarPark);
         em.getTransaction().commit();
         em.close();
-        return cp;
+        return currentCarPark;
     }
 
     @Override
@@ -217,12 +223,9 @@ public class CarParkService extends AbstractCarParkService{
             cpf = (CarParkFloor) carParkFloor;
         }else return null;
         EntityManager em = emf.createEntityManager();
-
-        em.getTransaction().begin();
-        em.merge(cpf);
-        em.getTransaction().commit();
+        CarParkFloor currentCarParkFloor = em.find(CarParkFloor.class,(cpf.getId()));
         em.close();
-        return cpf;
+        return currentCarParkFloor;
     }
 
     @Override
@@ -391,12 +394,16 @@ public class CarParkService extends AbstractCarParkService{
             spot = (ParkingSpot) parkingSpot;
         }else return null;
         EntityManager em = emf.createEntityManager();
+        ParkingSpot currentSpot = em.find(ParkingSpot.class,(spot.getId()));
+        if(currentSpot == null){em.close(); return null;}
+
+        currentSpot.setSpotIdentifier(spot.getSpotIdentifier());
 
         em.getTransaction().begin();
-        em.merge(spot);
+        em.merge(currentSpot);
         em.getTransaction().commit();
         em.close();
-        return spot;
+        return currentSpot;
     }
 
     @Override
@@ -521,13 +528,33 @@ public class CarParkService extends AbstractCarParkService{
         if(car instanceof Car){
             c = (Car) car;
         }else return null;
-
         EntityManager em = emf.createEntityManager();
+
+        Car currentCar = em.find(Car.class,(c.getId()));
+        if(currentCar == null){em.close(); return null;}
+
+        User currentOwner = currentCar.getUser();
+        User newOwner = em.find(User.class, c.getUser().getId());
+        if(newOwner == null){em.close(); return null;}
+
+        //swap car in owner lists
+        if(!currentOwner.equals(newOwner)){
+            currentOwner.getCars().remove(currentCar);
+            newOwner.addCar(currentCar);
+        }
+
+        currentCar.setBrand(c.getBrand());
+        currentCar.setModel(c.getModel());
+        currentCar.setColour(c.getColour());
+        currentCar.setUser(newOwner);
+
         em.getTransaction().begin();
-        em.merge(c);
+        em.merge(currentCar);
+        em.merge(currentOwner);
+        em.merge(newOwner);
         em.getTransaction().commit();
         em.close();
-        return c;
+        return currentCar;
     }
 
     @Override
@@ -641,11 +668,17 @@ public class CarParkService extends AbstractCarParkService{
         }else return null;
         EntityManager em = emf.createEntityManager();
 
+        User currentUser = em.find(User.class,(u.getId()));
+        if(currentUser == null){em.close(); return null;}
+        currentUser.setFirstname(u.getFirstname());
+        currentUser.setLastname(u.getLastname());
+        currentUser.setEmail(u.getEmail());
+
         em.getTransaction().begin();
-        em.merge(u);
+        em.merge(currentUser);
         em.getTransaction().commit();
         em.close();
-        return u;
+        return currentUser;
     }
 
     @Override
@@ -701,7 +734,7 @@ public class CarParkService extends AbstractCarParkService{
         reservation.setCar(car);
         reservation.setParkingSpot(ps);
         reservation.setStarDate(new Date(System.currentTimeMillis()));
-        ps.setCurrentCar(car);
+        //ps.setCurrentCar(car);
         em.getTransaction().begin();
         try {
             em.persist(ps);
@@ -737,7 +770,7 @@ public class CarParkService extends AbstractCarParkService{
             Integer price = cp.getPricePerHour() * (int) Math.ceil(diff/3600000.0) * 100;
             //System.out.println(diff);
             res.setPriceInCents(price);
-            res.getParkingSpot().setCurrentCar(null);
+            //res.getParkingSpot().setCurrentCar(null);
             persist(em,res);
             return res;
         }
@@ -781,12 +814,15 @@ public class CarParkService extends AbstractCarParkService{
             r = (Reservation) reservation;
         }else return null;
         EntityManager em = emf.createEntityManager();
+        Reservation currentRes = em.find(Reservation.class,(r.getId()));
+        if(currentRes == null){em.close(); return null;}
 
+        //reservation.se
         em.getTransaction().begin();
-        em.merge(r);
+        em.merge(currentRes);
         em.getTransaction().commit();
         em.close();
-        return r;
+        return currentRes;
     }
 
     @Override
@@ -842,16 +878,19 @@ public class CarParkService extends AbstractCarParkService{
         EntityManager em = emf.createEntityManager();
         Reservation res = em.find(Reservation.class,reservationId);
         DiscountCoupon coupon = em.find(DiscountCoupon.class,couponId);
-        if(coupon==null || res==null){
-            return null;
+        if(coupon==null){
+            return endReservation(reservationId);
         }
+        if(res == null){em.close(); return null;}
         if(coupon.getUser() == null || res.getParkingSpot().getCarParkFloor() == null){
+            em.close();
             return null;
         }
         // Ak existuju a kupon nie je skonceny a kupon patri majitelovi auta v rezervacii
         if(res.getEndDate()==null && Objects.equals(coupon.getUser().getId(), res.getCar().getUser().getId())){
             CarPark cp = em.find(CarPark.class,res.getParkingSpot().getCarParkFloor().getId().carParkID());
             if(cp == null){
+                em.close();
                 return null;
             }
             res.setUsedDiscountCoupon(coupon);
@@ -863,7 +902,7 @@ public class CarParkService extends AbstractCarParkService{
             Integer price = cp.getPricePerHour() * (int) Math.ceil(diff/3600000.0) * (100-coupon.getDiscount());
             //Integer discountPrice = (int) Math.round(price*coupon.getDiscount()/100.0);
             res.setPriceInCents(price);
-            res.getParkingSpot().setCurrentCar(null);
+            //res.getParkingSpot().setCurrentCar(null);
 
             em.getTransaction().begin();
             try {

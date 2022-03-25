@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "USER")
@@ -14,7 +15,7 @@ public class User implements Serializable {
     private Long id;
     private String firstname;
     private String lastname;
-    @Column(unique=true)
+    @Column(unique=true, nullable = false)
     private String email;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.ALL}, orphanRemoval = true)
@@ -88,5 +89,18 @@ public class User implements Serializable {
             this.cars=new ArrayList<>();
         }
         this.cars.add(car);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id.equals(user.id) && email.equals(user.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, email);
     }
 }
