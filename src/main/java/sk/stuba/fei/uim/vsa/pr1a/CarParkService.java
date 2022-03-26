@@ -532,7 +532,6 @@ public class CarParkService extends AbstractCarParkService{
 
         Car currentCar = em.find(Car.class,(c.getId()));
         if(currentCar == null){em.close(); return null;}
-
         User currentOwner = currentCar.getUser();
         User newOwner = em.find(User.class, c.getUser().getId());
         if(newOwner == null){em.close(); return null;}

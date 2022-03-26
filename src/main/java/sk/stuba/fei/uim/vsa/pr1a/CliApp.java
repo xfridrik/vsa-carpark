@@ -2,6 +2,8 @@ package sk.stuba.fei.uim.vsa.pr1a;
 
 import sk.stuba.fei.uim.vsa.pr1a.entities.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class CliApp {
@@ -9,10 +11,12 @@ public class CliApp {
 
     public void start() {
         mainLoop: while(true){
-            System.out.println("Zadaj typ príkazu - C -create, R - read, U - update, D - delete, Q - quit");
+            System.out.println("\033[0;34m"+"\nZadaj typ príkazu - C -create, R - read, U - update, D - delete, Q - quit"+"\033[0m");
             String input = KeyboardInput.readString("").trim();
             switch (input){
                 case "C":
+                case "c":
+                case "create":
                     System.out.println("Vyber entitu - car, carpark, floor, user, spot, reservation, coupon alebo Q pre vrátenie sa");
                     String createInput = KeyboardInput.readString("").trim();
                     switch (createInput){
@@ -45,6 +49,8 @@ public class CliApp {
                     }
                     break;
                 case "R":
+                case "r":
+                case "read":
                     System.out.println("Vyber entitu - car, carpark, floor, user, spot, reservation, coupon alebo Q pre vrátenie sa");
                     String getInput = KeyboardInput.readString("").trim();
                     switch (getInput){
@@ -77,6 +83,8 @@ public class CliApp {
                     }
                     break;
                 case "U":
+                case "u":
+                case "update":
                     System.out.println("Vyber entitu - car, carpark, floor, user, spot, reservation alebo Q pre vrátenie sa");
                     String updateInput = KeyboardInput.readString("").trim();
                     switch (updateInput){
@@ -98,6 +106,9 @@ public class CliApp {
                         case "reservations":
                             CLICupdateReservations();
                             break;
+                        case "coupon":
+                            CLICupdateCoupon();
+                            break;
                         case  "Q":
                             break;
                         default:
@@ -106,6 +117,8 @@ public class CliApp {
                     }
                     break;
                 case "D":
+                case "d":
+                case "delete":
                     System.out.println("Vyber entitu - car, carpark, floor, user, spot, reservation end, reservation coupon, coupon alebo Q pre vrátenie sa");
                     String delInput = KeyboardInput.readString("").trim();
                     switch (delInput){
@@ -141,6 +154,8 @@ public class CliApp {
                     }
                     break;
                 case  "Q":
+                case  "q":
+                case  "quit":
                     break mainLoop;
                 default:
                     System.out.println("Nesprávny príkaz");
@@ -164,7 +179,7 @@ public class CliApp {
         if(reservation == null){
             System.out.println("Nepodarilo sa upraviť objekt, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Upravený objekt:"+reservation.toString());
+            System.out.println("Upravený objekt:"+ reservation);
         }
 
     }
@@ -186,7 +201,7 @@ public class CliApp {
         if(spot == null){
             System.out.println("Nepodarilo sa upraviť objekt, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Upravený objekt:"+spot.toString());
+            System.out.println("Upravený objekt:"+ spot);
         }
 
     }
@@ -206,7 +221,7 @@ public class CliApp {
         if(user == null){
             System.out.println("Nepodarilo sa upraviť objekt, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Upravený objekt:"+user.toString());
+            System.out.println("Upravený objekt:"+ user);
         }
 
     }
@@ -225,19 +240,21 @@ public class CliApp {
         if(carPark == null){
             System.out.println("Nepodarilo sa upraviť objekt, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Upravený objekt:"+carPark.toString());
+            System.out.println("Upravený objekt:"+ carPark);
         }
-
     }
 
     private void CLIupdateCar() {
         Car car;
         Car newCar = new Car();
         newCar.setId((long) KeyboardInput.readInt("Zadaj ID auta"));
+        Long uid = (long) KeyboardInput.readInt("Zadaj ID majiteľa");
         newCar.setBrand(KeyboardInput.readString("Zadaj novú značku auta").trim());
         newCar.setModel(KeyboardInput.readString("Zadaj nový model").trim());
         newCar.setColour(KeyboardInput.readString("Zadaj novú farbu").trim());
+        newCar.setColour(KeyboardInput.readString("Zadaj EČV").trim());
         try{
+            newCar.setUser((User) cps.getUser(uid));
             car = (Car) cps.updateCar(newCar);
         }catch (Exception e){
             car = null;
@@ -245,9 +262,19 @@ public class CliApp {
         if(car == null){
             System.out.println("Nepodarilo sa upraviť objekt, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Upravený objekt:"+car.toString());
+            System.out.println("Upravený objekt:"+ car);
         }
+    }
 
+    private void CLICupdateCoupon() {
+        Long couponId = (long) KeyboardInput.readInt("Zadaj ID carparku");
+        Long userId = (long) KeyboardInput.readInt("Zadaj ID používateľa");
+        try{
+            cps.giveCouponToUser(couponId,userId);
+            System.out.println("Kupón bol priradený");
+        }catch (Exception e){
+            System.out.println("Nepodarilo sa upraviť objekt, skontroluj zadané údaje a skús znova");
+        }
     }
 
     private void CLICdelCoupon() {
@@ -261,7 +288,7 @@ public class CliApp {
         if(coupon == null){
             System.out.println("Nepodarilo sa vymazať, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Kupón odstránený od užívateľa:"+coupon.toString());
+            System.out.println("Kupón odstránený od užívateľa:"+ coupon);
         }
 
     }
@@ -278,7 +305,7 @@ public class CliApp {
         if(reservation == null){
             System.out.println("Nepodarilo sa ukončiť rezerváciu s kupónom, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Ukončená rezervácia s kupónom:"+reservation.toString());
+            System.out.println("Ukončená rezervácia s kupónom:"+ reservation);
         }
     }
 
@@ -293,7 +320,7 @@ public class CliApp {
         if(reservation == null){
             System.out.println("Nepodarilo sa ukončiť rezerváciu, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Ukončená rezervácia:"+reservation.toString());
+            System.out.println("Ukončená rezervácia:"+ reservation);
         }
     }
 
@@ -308,7 +335,7 @@ public class CliApp {
         if(spot == null){
             System.out.println("Nepodarilo sa vymazať objekt, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Vymazaný objekt:"+spot.toString());
+            System.out.println("Vymazaný objekt:"+ spot);
         }
 
     }
@@ -324,7 +351,7 @@ public class CliApp {
         if(user == null){
             System.out.println("Nepodarilo sa vymazať objekt, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Vymazaný objekt:"+user.toString());
+            System.out.println("Vymazaný objekt:"+ user);
         }
 
     }
@@ -341,7 +368,7 @@ public class CliApp {
         if(floor == null){
             System.out.println("Nepodarilo sa vymazať objekt, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Vymazaný objekt:"+floor.toString());
+            System.out.println("Vymazaný objekt:"+ floor);
         }
 
     }
@@ -357,7 +384,7 @@ public class CliApp {
         if(carpark == null){
             System.out.println("Nepodarilo sa vymazať objekt, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Vymazaný objekt:"+carpark.toString());
+            System.out.println("Vymazaný objekt:"+ carpark);
         }
     }
 
@@ -372,45 +399,113 @@ public class CliApp {
         if(car == null){
             System.out.println("Nepodarilo sa vymazať objekt, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Vymazaný objekt:"+car.toString());
+            System.out.println("Vymazaný objekt:"+ car);
         }
 
     }
 
     private void CLICgetReservations() {
-        List<Object> reservation;
-        Long userId = (long) KeyboardInput.readInt("Zadaj ID používateľa");
-        try{
-            reservation = cps.getMyReservations(userId);
-        }catch (Exception e){
-            reservation = null;
+        System.out.println("Vyber typ vyhľadávania - \"from user\", \"from day\" alebo Q pre vrátenie sa");
+        String getInput = KeyboardInput.readString("").trim();
+        switch (getInput){
+            case "from user":
+                List<Object> reservation;
+                Long userId = (long) KeyboardInput.readInt("Zadaj ID používateľa");
+                try{
+                    reservation = cps.getMyReservations(userId);
+                }catch (Exception e){
+                    reservation = null;
+                }
+                if(reservation == null){
+                    System.out.println("Nepodarilo sa nájsť objekt, skontroluj zadané údaje a skús znova");
+                }else {
+                    System.out.println("Nájdené objekty:"+ reservation);
+                }
+                break;
+            case "from day":
+                Long spotId = (long) KeyboardInput.readInt("Zadaj ID parkovacieho miesta");
+                String date = KeyboardInput.readString("Zadaj dátum v tvare dd/mm/yyyy").trim();
+                try{
+                    Date date1=new SimpleDateFormat("dd/MM/yyyy").parse(date);
+                    if(cps.getReservations(spotId,date1)!=null){
+                        System.out.println(cps.getReservations(spotId,date1));
+                    }else{
+                        System.out.println("Nepodarilo sa nájsť objekt, skontroluj zadané údaje a skús znova");
+                    }
+                }catch (Exception e){
+                    System.out.println("Nepodarilo sa nájsť objekt, skontroluj zadané údaje a skús znova");
+                }
+                break;
+            case "Q":
+                break;
+            default:
+                System.out.println("Nesprávny príkaz");
+                break;
         }
-        if(reservation == null){
-            System.out.println("Nepodarilo sa nájsť objekt, skontroluj zadané údaje a skús znova");
-        }else {
-            System.out.println("Nájdené objekty:"+reservation.toString());
-        }
-
     }
 
     private void CLICgetSpot() {
-        ParkingSpot spot;
-        Long spotId = (long) KeyboardInput.readInt("Zadaj ID parkovacieho miesta");
-        try{
-            spot = (ParkingSpot) cps.getParkingSpot(spotId);
-        }catch (Exception e){
-            spot = null;
-        }
-        if(spot == null){
-            System.out.println("Nepodarilo sa nájsť objekt, skontroluj zadané údaje a skús znova");
-        }else {
-            System.out.println("Nájdený objekt:"+spot.toString());
+        System.out.println("Vyber typ vyhľadávania - \"id\", \"from carpark\", \"from floor\", \"available\", \"occupied\" alebo Q pre vrátenie sa");
+        String getInput = KeyboardInput.readString("").trim();
+        switch (getInput){
+            case "id":
+                ParkingSpot spot;
+                Long spotId = (long) KeyboardInput.readInt("Zadaj ID parkovacieho miesta");
+                try{
+                    spot = (ParkingSpot) cps.getParkingSpot(spotId);
+                }catch (Exception e){
+                    spot = null;
+                }
+                if(spot == null){
+                    System.out.println("Nepodarilo sa nájsť objekt, skontroluj zadané údaje a skús znova");
+                }else {
+                    System.out.println("Nájdený objekt:"+ spot);
+                }
+                break;
+            case "from carpark":
+                Long cpId = (long) KeyboardInput.readInt("Zadaj ID carparku");
+                try{
+                    System.out.println(cps.getParkingSpots(cpId));
+                }catch (Exception e){
+                    System.out.println("Nepodarilo sa nájsť objekty, skontroluj zadané údaje a skús znova");
+                }
+                break;
+            case "from floor":
+                Long carparkId = (long) KeyboardInput.readInt("Zadaj ID carparku");
+                String fid = KeyboardInput.readString("Zadaj identifikátor podlažia").trim();
+                try{
+                    System.out.println(cps.getParkingSpots(carparkId,fid));
+                }catch (Exception e){
+                    System.out.println("Nepodarilo sa nájsť objekty, skontroluj zadané údaje a skús znova");
+                }
+                break;
+            case "available":
+                String carparkAv = KeyboardInput.readString("Zadaj názov carparku").trim();
+                try{
+                    System.out.println(cps.getAvailableParkingSpots(carparkAv));
+                }catch (Exception e){
+                    System.out.println("Nepodarilo sa nájsť objekty, skontroluj zadané údaje a skús znova");
+                }
+                break;
+            case "occupied":
+                String carparkOcc = KeyboardInput.readString("Zadaj názov carparku").trim();
+                try{
+                    System.out.println(cps.getOccupiedParkingSpots(carparkOcc));
+                }catch (Exception e){
+                    System.out.println("Nepodarilo sa nájsť objekty, skontroluj zadané údaje a skús znova");
+                }
+                break;
+            case "Q":
+                break;
+            default:
+                System.out.println("Nesprávny príkaz");
+                break;
         }
 
     }
 
     private void CLICgetUser() {
-        System.out.println("Vyber typ vyhľadávania - id, email alebo Q pre vrátenie sa");
+        System.out.println("Vyber typ vyhľadávania - id, email, all alebo Q pre vrátenie sa");
         String getInput = KeyboardInput.readString("").trim();
         User user;
         switch (getInput){
@@ -424,7 +519,7 @@ public class CliApp {
                 if(user == null){
                     System.out.println("Nepodarilo sa nájsť objekt, skontroluj zadané údaje a skús znova");
                 }else {
-                    System.out.println("Nájdený objekt:"+user.toString());
+                    System.out.println("Nájdený objekt:"+user);
                 }
                 break;
             case "email":
@@ -437,7 +532,14 @@ public class CliApp {
                 if(user == null){
                     System.out.println("Nepodarilo sa nájsť objekt, skontroluj zadané údaje a skús znova");
                 }else {
-                    System.out.println("Nájdený objekt:"+user.toString());
+                    System.out.println("Nájdený objekt:"+ user);
+                }
+                break;
+            case "all":
+                try{
+                    System.out.println(cps.getUsers());
+                }catch (Exception e){
+                    System.out.println("Nepodarilo sa nájsť objekty, skontroluj zadané údaje a skús znova");
                 }
                 break;
             case "Q":
@@ -449,38 +551,81 @@ public class CliApp {
     }
 
     private void CLICgetFloor() {
-        CarParkFloor floor;
-        Long carparkId = (long) KeyboardInput.readInt("Zadaj ID carparku");
-        String id = KeyboardInput.readString("Zadaj identifikátor podlažia").trim();
-        try{
-            floor = (CarParkFloor) cps.getCarParkFloor(carparkId,id);
-        }catch (Exception e){
-            floor = null;
+        System.out.println("Vyber typ vyhľadávania - \"id\", \"from carpark\" alebo Q pre vrátenie sa");
+        String getInput = KeyboardInput.readString("").trim();
+        switch (getInput){
+            case "id":
+                CarParkFloor floor;
+                Long carparkId = (long) KeyboardInput.readInt("Zadaj ID carparku");
+                String id = KeyboardInput.readString("Zadaj identifikátor podlažia").trim();
+                try{
+                    floor = (CarParkFloor) cps.getCarParkFloor(carparkId,id);
+                }catch (Exception e){
+                    floor = null;
+                }
+                if(floor == null){
+                    System.out.println("Nepodarilo sa nájsť objekt, skontroluj zadané údaje a skús znova");
+                }else {
+                    System.out.println("Nájdený objekt:"+ floor);
+                }
+                break;
+            case "from carpark":
+                Long cpId = (long) KeyboardInput.readInt("Zadaj ID carparku");
+                try{
+                    System.out.println(cps.getCarParkFloors(cpId));
+                }catch (Exception e){
+                    System.out.println("Nepodarilo sa nájsť objekty, skontroluj zadané údaje a skús znova");
+                }
+                break;
+            case "Q":
+                break;
+            default:
+                System.out.println("Nesprávny príkaz");
+                break;
         }
-        if(floor == null){
-            System.out.println("Nepodarilo sa nájsť objekt, skontroluj zadané údaje a skús znova");
-        }else {
-            System.out.println("Nájdený objekt:"+floor.toString());
-        }
+
     }
 
     private void CLICgetCoupon() {
-        DiscountCoupon coupon;
-        Long couponId = (long) KeyboardInput.readInt("Zadaj ID kupónu");
-        try{
-            coupon = (DiscountCoupon) cps.getCoupon(couponId);
-        }catch (Exception e){
-            coupon = null;
-        }
-        if(coupon == null){
-            System.out.println("Nepodarilo sa nájsť objekt, skontroluj zadané údaje a skús znova");
-        }else {
-            System.out.println("Nájdený objekt:"+coupon.toString());
+        System.out.println("Vyber typ vyhľadávania - \"id\", \"from user\" alebo Q pre vrátenie sa");
+        String getInput = KeyboardInput.readString("").trim();
+        switch (getInput){
+            case "id":
+                DiscountCoupon coupon;
+                Long couponId = (long) KeyboardInput.readInt("Zadaj ID kupónu");
+                try{
+                    coupon = (DiscountCoupon) cps.getCoupon(couponId);
+                }catch (Exception e){
+                    coupon = null;
+                }
+                if(coupon == null){
+                    System.out.println("Nepodarilo sa nájsť objekt, skontroluj zadané údaje a skús znova");
+                }else {
+                    System.out.println("Nájdený objekt:"+ coupon);
+                }
+                break;
+            case "from user":
+                Long userId = (long) KeyboardInput.readInt("Zadaj ID užívateľa");
+                try{
+                    if(cps.getCoupons(userId)!=null){
+                        System.out.println(cps.getCoupons(userId));
+                    }else {
+                        System.out.println("Nepodarilo sa nájsť objekty, skontroluj zadané údaje a skús znova");
+                    }
+                }catch (Exception e){
+                    System.out.println("Nepodarilo sa nájsť objekty, skontroluj zadané údaje a skús znova");
+                }
+                break;
+            case "Q":
+                break;
+            default:
+                System.out.println("Nesprávny príkaz");
+                break;
         }
     }
 
     private void CLIgetCarPark() {
-        System.out.println("Vyber typ vyhľadávania - id, meno alebo Q pre vrátenie sa");
+        System.out.println("Vyber typ vyhľadávania - \"id\", \"meno\", \"all\" alebo Q pre vrátenie sa");
         String getInput = KeyboardInput.readString("").trim();
         CarPark carpark;
         switch (getInput){
@@ -494,7 +639,7 @@ public class CliApp {
                 if(carpark == null){
                     System.out.println("Nepodarilo sa nájsť objekt, skontroluj zadané údaje a skús znova");
                 }else {
-                    System.out.println("Nájdený objekt:"+carpark.toString());
+                    System.out.println("Nájdený objekt:"+ carpark);
                 }
                 break;
             case "meno":
@@ -507,7 +652,14 @@ public class CliApp {
                 if(carpark == null){
                     System.out.println("Nepodarilo sa nájsť objekt, skontroluj zadané údaje a skús znova");
                 }else {
-                    System.out.println("Nájdený objekt:"+carpark.toString());
+                    System.out.println("Nájdený objekt:"+ carpark);
+                }
+                break;
+            case "all":
+                try{
+                    System.out.println(cps.getCarParks());
+                }catch (Exception e){
+                    System.out.println("Nepodarilo sa nájsť objekty, skontroluj zadané údaje a skús znova");
                 }
                 break;
             case "Q":
@@ -519,7 +671,7 @@ public class CliApp {
     }
 
     private void CLIgetCar() {
-        System.out.println("Vyber typ vyhľadávania - id, ecv alebo Q pre vrátenie sa");
+        System.out.println("Vyber typ vyhľadávania - id, ecv, from user alebo Q pre vrátenie sa");
         String getInput = KeyboardInput.readString("").trim();
         Car car;
         switch (getInput){
@@ -533,7 +685,7 @@ public class CliApp {
                 if(car == null){
                     System.out.println("Nepodarilo sa nájsť objekt, skontroluj zadané údaje a skús znova");
                 }else {
-                    System.out.println("Nájdený objekt:"+car.toString());
+                    System.out.println("Nájdený objekt:"+ car);
                 }
                 break;
             case "ecv":
@@ -546,7 +698,19 @@ public class CliApp {
                 if(car == null){
                     System.out.println("Nepodarilo sa nájsť objekt, skontroluj zadané údaje a skús znova");
                 }else {
-                    System.out.println("Nájdený objekt:"+car.toString());
+                    System.out.println("Nájdený objekt:"+ car);
+                }
+                break;
+            case "from user":
+                Long userId = (long) KeyboardInput.readInt("Zadaj ID užívateľa");
+                try{
+                    if(cps.getCars(userId) != null){
+                        System.out.println(cps.getCars(userId));
+                    }else {
+                        System.out.println("Nepodarilo sa nájsť objekty, skontroluj zadané údaje a skús znova");
+                    }
+                }catch (Exception e){
+                    System.out.println("Nepodarilo sa nájsť objekty, skontroluj zadané údaje a skús znova");
                 }
                 break;
             case "Q":
@@ -571,7 +735,7 @@ public class CliApp {
         if(spot == null){
             System.out.println("Nepodarilo sa vytvoriť, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Vytvorený objekt:"+spot.toString());
+            System.out.println("Vytvorený objekt:"+ spot);
         }
 
     }
@@ -588,7 +752,7 @@ public class CliApp {
         if(coupon == null){
             System.out.println("Nepodarilo sa vytvoriť, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Vytvorený objekt:"+coupon.toString());
+            System.out.println("Vytvorený objekt:"+ coupon);
         }
 
     }
@@ -606,7 +770,7 @@ public class CliApp {
         if(reservation == null){
             System.out.println("Nepodarilo sa vytvoriť, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Vytvorený objekt:"+reservation.toString());
+            System.out.println("Vytvorený objekt:"+ reservation);
         }
     }
 
@@ -623,7 +787,7 @@ public class CliApp {
         if(user == null){
             System.out.println("Nepodarilo sa vytvoriť, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Vytvorený objekt:"+user.toString());
+            System.out.println("Vytvorený objekt:"+ user);
         }
 
     }
@@ -641,7 +805,7 @@ public class CliApp {
         if(floor == null){
             System.out.println("Nepodarilo sa vytvoriť, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Vytvorený objekt:"+floor.toString());
+            System.out.println("Vytvorený objekt:"+ floor);
         }
     }
 
@@ -659,7 +823,7 @@ public class CliApp {
         if(carpark == null){
             System.out.println("Nepodarilo sa vytvoriť, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Vytvorený objekt:"+carpark.toString());
+            System.out.println("Vytvorený objekt:"+ carpark);
         }
 
     }
@@ -679,7 +843,7 @@ public class CliApp {
         if(car == null){
             System.out.println("Nepodarilo sa vytvoriť, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Vytvorený objekt:"+car.toString());
+            System.out.println("Vytvorený objekt:"+ car);
         }
     }
 

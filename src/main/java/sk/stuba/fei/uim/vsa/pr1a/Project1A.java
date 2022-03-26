@@ -6,14 +6,18 @@ public class Project1A {
 
     public static void main(String[] args) throws InterruptedException {
         CarParkService cps = new CarParkService();
+        cps.createUser("MMM","fff", "asd");
+        cps.createCar(1L, "SU", "ZI","red","AB123");
+        cps.createCarPark("CP1","nova",5);
+        cps.createCarPark("CP2","stara",4);
         CliApp app = new CliApp();
-       // app.start();
+        app.start();
         //deleteUserWithReservations();
         //deleteCarparkWithReservations();
         //deleteFloorWithReservations();
         //deleteSpotWithReservations();
         //getSpots();
-        update();
+        //update();
         //createCarPark();
        // getCarPark();
         //removeCoupons();
