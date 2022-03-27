@@ -13,7 +13,7 @@ public class ParkingSpot implements Serializable {
 
     @ManyToOne(optional = false)
     private CarParkFloor carParkFloor;
-
+    @Column(nullable = false)
     private String spotIdentifier;
 
     public Long getId() {

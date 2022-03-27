@@ -10,6 +10,7 @@ public class DiscountCoupon implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
+    @Column(nullable = false)
     private Integer discount;
     @ManyToOne
     private User user;

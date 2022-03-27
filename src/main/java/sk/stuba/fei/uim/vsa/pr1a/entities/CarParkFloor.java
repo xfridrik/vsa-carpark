@@ -28,7 +28,7 @@ public class CarParkFloor implements Serializable {
     public String toString() {
         return "CarParkFloor{" +
                 "carparkId=" + id.carParkID() +
-                "floor identifier=" + id.getFloorId() +
+                ", floor identifier=" + id.getFloorId() +
                 '}';
     }
 
