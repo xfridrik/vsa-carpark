@@ -16,7 +16,7 @@ public class DiscountCoupon implements Serializable {
     @Column(nullable = false)
     private Integer discount;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "coupons")
     private Collection<User> users = new ArrayList<>();
 
     public Long getId() {

@@ -8,7 +8,7 @@ public class Project1A {
 
     public static void main(String[] args) throws InterruptedException {
         CarParkService cps = new CarParkService();
-couponGiving();
+        //couponGiving();
         //createCarPark();
         //create();
         //update();
@@ -19,8 +19,31 @@ couponGiving();
         //createCarPark();
        // getCarPark();
         //removeCoupons();
+        deleteUserWithCoupons();
 
     }
+
+    public static void deleteUserWithCoupons() {
+        CarParkService cps = new CarParkService();
+
+
+        User u1 = (User) cps.createUser("mišo", "mitúch", "mm");
+        DiscountCoupon c1 = (DiscountCoupon) cps.createDiscountCoupon("SALE",20);
+        DiscountCoupon c2 = (DiscountCoupon) cps.createDiscountCoupon("SALE",20);
+        cps.giveCouponToUser(c1.getId(), u1.getId());
+        cps.giveCouponToUser(c2.getId(), u1.getId());
+
+        System.out.println("u1 kupony"+cps.getCoupons(u1.getId()));
+        System.out.println("c1 vlastnici "+((DiscountCoupon)cps.getCoupon(c1.getId())).getUsers().size());
+        System.out.println("removing user");
+        cps.deleteUser(u1.getId());
+        System.out.println("c1 vlastnici "+((DiscountCoupon)cps.getCoupon(c1.getId())).getUsers().size());
+
+
+
+
+    }
+
     public static void couponGiving() {
         CarParkService cps = new CarParkService();
         CarPark cp1 = (CarPark) cps.createCarPark("createcarparkco", "petržalka", 8);
@@ -393,7 +416,7 @@ couponGiving();
         System.out.println("\nzly vstup:");
         System.out.println(cps.createReservation(s1.getId(), c1.getId()));
         System.out.println(cps.createReservation(s1.getId(), c3.getId()));
-        System.out.println(cps.createReservation(s3.getId(), c2.getId()));
+        //System.out.println(cps.createReservation(s3.getId(), c2.getId()));
         System.out.println(cps.createReservation(null, null));
         System.out.println(cps.createReservation(10000L, c3.getId()));
         System.out.println(cps.createReservation(s3.getId(), 10000L));
@@ -887,6 +910,8 @@ couponGiving();
         System.out.println("\n----------delete user");
         System.out.println(cps.deleteUser(u1.getId()));
     }
+
+
 
     public static void createCars() {
         CarParkService cps = new CarParkService();
