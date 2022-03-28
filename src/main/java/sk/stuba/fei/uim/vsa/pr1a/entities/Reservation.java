@@ -11,7 +11,7 @@ public class Reservation implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Date starDate;
+    private Date startDate;
     private Date endDate;
     private Integer priceInCents;
 
@@ -48,12 +48,12 @@ public class Reservation implements Serializable {
         this.id = id;
     }
 
-    public Date getStarDate() {
-        return starDate;
+    public Date getStartDate() {
+        return startDate;
     }
 
-    public void setStarDate(Date starDate) {
-        this.starDate = starDate;
+    public void setStartDate(Date starDate) {
+        this.startDate = starDate;
     }
 
     public Date getEndDate() {
@@ -76,7 +76,7 @@ public class Reservation implements Serializable {
     public String toString() {
         return "Reservation{" +
                 "id=" + id +
-                ", starDate=" + starDate +
+                ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 ", price=" + priceInCents +
                 ", car=" + car.getVehicleRegistrationPlate() +

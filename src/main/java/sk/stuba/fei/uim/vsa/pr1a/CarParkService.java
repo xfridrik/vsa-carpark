@@ -42,7 +42,7 @@ public class CarParkService extends AbstractCarParkService{
             cp = em.find(CarPark.class, carParkId);
         }
         catch (Exception e){
-            e.printStackTrace();
+            //e.printStackTrace();
             em.close();
             return null;
         }
@@ -222,7 +222,7 @@ public class CarParkService extends AbstractCarParkService{
         try{
             cp = em.find(CarPark.class,carParkId);
         }catch (Exception e){
-            e.printStackTrace();
+            //e.printStackTrace();
             em.close();
             return null;
         }
@@ -334,15 +334,17 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object getParkingSpot(Long parkingSpotId) {
+        EntityManager em = emf.createEntityManager();
+        ParkingSpot ps;
         try {
-            EntityManager em = emf.createEntityManager();
-            ParkingSpot ps = em.find(ParkingSpot.class, parkingSpotId);
-            em.close();
-            return ps;
+            ps = em.find(ParkingSpot.class, parkingSpotId);
         }catch (Exception e){
-            e.printStackTrace();
+            //e.printStackTrace();
+            em.close();
             return null;
         }
+        em.close();
+        return ps;
     }
 
     @Override
@@ -368,7 +370,7 @@ public class CarParkService extends AbstractCarParkService{
         try {
             cp = em.find(CarPark.class,carParkId);
         }catch (Exception e){
-            e.printStackTrace();
+            //e.printStackTrace();
             em.close();
             return null;
         }
@@ -520,7 +522,7 @@ public class CarParkService extends AbstractCarParkService{
         try{
             car = em.find(Car.class, carId);
         }catch (Exception e){
-            e.printStackTrace();
+            //e.printStackTrace();
             em.close();
             return null;
         }
@@ -556,7 +558,7 @@ public class CarParkService extends AbstractCarParkService{
         try{
             user = em.find(User.class,userId);
         }catch (Exception e){
-            e.printStackTrace();
+            //e.printStackTrace();
             em.close();
             return null;
         }
@@ -760,11 +762,12 @@ public class CarParkService extends AbstractCarParkService{
             u = em.find(User.class, userId);
             if (u!=null){
                 u.getCars().forEach((car)-> deleteCar(car.getId()));
+                u.getCoupons().forEach((coupon)->coupon.setUser(null));
                 em.remove(u);
             }
             em.getTransaction().commit();
         }catch (Exception e){
-            e.printStackTrace();
+            //e.printStackTrace();
             em.close();
             return null;
         }
@@ -803,7 +806,7 @@ public class CarParkService extends AbstractCarParkService{
         Reservation reservation = new Reservation();
         reservation.setCar(car);
         reservation.setParkingSpot(ps);
-        reservation.setStarDate(new Date(System.currentTimeMillis()));
+        reservation.setStartDate(new Date(System.currentTimeMillis()));
         em.getTransaction().begin();
         try {
             em.persist(ps);
@@ -834,7 +837,7 @@ public class CarParkService extends AbstractCarParkService{
             }
             // price calculation
             res.setEndDate(new Date(System.currentTimeMillis()));
-            long diff = res.getEndDate().getTime() - res.getStarDate().getTime();
+            long diff = res.getEndDate().getTime() - res.getStartDate().getTime();
             if (diff<10) diff = 10;
             Integer price = cp.getPricePerHour() * (int) Math.ceil(diff/3600000.0) * 100;
             res.setPriceInCents(price);
@@ -858,7 +861,7 @@ public class CarParkService extends AbstractCarParkService{
         List<Object> resInDay = new ArrayList<>();
         //check if reservation is in provided day
         reservations.forEach((reservation -> {
-            if(fmt.format(reservation.getStarDate()).equals(fmt.format(date))){
+            if(fmt.format(reservation.getStartDate()).equals(fmt.format(date))){
                 resInDay.add(reservation);
             }
         }));
@@ -891,7 +894,7 @@ public class CarParkService extends AbstractCarParkService{
 
         currentRes.setCar(r.getCar());
         currentRes.setParkingSpot(r.getParkingSpot());
-        currentRes.setStarDate(r.getStarDate());
+        currentRes.setStartDate(r.getStartDate());
         try{
             em.getTransaction().begin();
             em.merge(currentRes);
@@ -999,10 +1002,12 @@ public class CarParkService extends AbstractCarParkService{
             }
             res.setUsedDiscountCoupon(coupon);
             coupon.setUsedInReservation(res);
+            coupon.getUser().getCoupons().remove(coupon);
             coupon.setUser(null);
+
             // discount price calculation
             res.setEndDate(new Date(System.currentTimeMillis()));
-            long diff = res.getEndDate().getTime() - res.getStarDate().getTime();
+            long diff = res.getEndDate().getTime() - res.getStartDate().getTime();
             Integer price = cp.getPricePerHour() * (int) Math.ceil(diff/3600000.0) * (100-coupon.getDiscount());
             //Integer discountPrice = (int) Math.round(price*coupon.getDiscount()/100.0);
             res.setPriceInCents(price);
@@ -1010,8 +1015,8 @@ public class CarParkService extends AbstractCarParkService{
 
             em.getTransaction().begin();
             try {
-                em.persist(res);
-                em.persist(coupon);
+                em.merge(res);
+                em.merge(coupon);
                 em.getTransaction().commit();
             } catch (Exception e) {
                 e.printStackTrace();

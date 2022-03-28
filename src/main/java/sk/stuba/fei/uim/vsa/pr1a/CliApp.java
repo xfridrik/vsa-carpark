@@ -51,7 +51,7 @@ public class CliApp {
                 case "R":
                 case "r":
                 case "read":
-                    System.out.println("Vyber entitu - car, carpark, floor, user, spot, reservation, coupon alebo Q pre vrátenie sa");
+                    System.out.println("Vyber entitu - car, carpark, floor, user, spot, reservations, coupon alebo Q pre vrátenie sa");
                     String getInput = KeyboardInput.readString("").trim();
                     switch (getInput){
                         case "car":
