@@ -8,10 +8,11 @@ public class Project1A {
 
     public static void main(String[] args) throws InterruptedException {
         CarParkService cps = new CarParkService();
+couponGiving();
         //createCarPark();
         //create();
         //update();
-        deleteSimple();
+        //deleteSimple();
         CliApp app = new CliApp();
         //app.start();
         //getSpots();
@@ -20,7 +21,64 @@ public class Project1A {
         //removeCoupons();
 
     }
-    public static void deleteSimple() {
+    public static void couponGiving() {
+        CarParkService cps = new CarParkService();
+        CarPark cp1 = (CarPark) cps.createCarPark("createcarparkco", "petržalka", 8);
+        CarParkFloor f1 = (CarParkFloor) cps.createCarParkFloor(cp1.getId(), "F1");
+        ParkingSpot s1 = (ParkingSpot) cps.createParkingSpot(cp1.getId(), f1.getId().getFloorId(), "coS1");
+        ParkingSpot s2 = (ParkingSpot) cps.createParkingSpot(cp1.getId(), f1.getId().getFloorId(), "coS12");
+        ParkingSpot s3 = (ParkingSpot) cps.createParkingSpot(cp1.getId(), f1.getId().getFloorId(), "coS13");
+
+        User u1 = (User) cps.createUser("USER1","FFF","u1@mail");
+        User u2 = (User) cps.createUser("USER2","FFF","u2@mail");
+
+        Car car1 = (Car) cps.createCar(u1.getId(), "BB","MM","red","SADFGH");
+        Car car2 = (Car) cps.createCar(u1.getId(), "BB","MM","red","htrgewf");
+        Car car3 = (Car) cps.createCar(u2.getId(), "BB","MM","red","ztrge");
+
+
+
+        DiscountCoupon c1 = (DiscountCoupon) cps.createDiscountCoupon("SALE",20);
+        DiscountCoupon c2 = (DiscountCoupon) cps.createDiscountCoupon("SALE",20);
+        cps.giveCouponToUser(c1.getId(), u1.getId());
+        cps.giveCouponToUser(c1.getId(), u2.getId());
+
+        cps.giveCouponToUser(c2.getId(), u2.getId());
+        System.out.println("u1 kupony"+cps.getCoupons(u1.getId()));
+        System.out.println("u2 kupony"+cps.getCoupons(u2.getId()));
+        System.out.println("c1 vlastnici "+((DiscountCoupon)cps.getCoupon(c1.getId())).getUsers().size());
+        System.out.println("DELETE COUPON");
+        //cps.deleteCoupon(c1.getId());
+        System.out.println("u1 kupony"+cps.getCoupons(u1.getId()));
+        System.out.println("u2 kupony"+cps.getCoupons(u2.getId()));
+        System.out.println("c1 vlastnici "+((DiscountCoupon)cps.getCoupon(c1.getId())).getUsers().size());
+
+        Reservation r1 = (Reservation) cps.createReservation(s1.getId(), car1.getId());
+        Reservation r2 = (Reservation) cps.createReservation(s2.getId(), car2.getId());
+        Reservation r3 = (Reservation) cps.createReservation(s3.getId(), car3.getId());
+
+        //dat userovi
+        //zaplatit rezervaciu
+        cps.endReservation(r1.getId(), c1.getId());
+        cps.endReservation(r2.getId(), c1.getId());
+        //dat inemu userovi - OK
+        cps.endReservation(r3.getId(), c1.getId());
+
+
+        System.out.println("u1 kupony"+cps.getCoupons(u1.getId()));
+        System.out.println("u2 kupony"+cps.getCoupons(u2.getId()));
+        System.out.println("c1 vlastnici "+((DiscountCoupon)cps.getCoupon(c1.getId())).getUsers().size());
+
+        Reservation r4 = (Reservation) cps.createReservation(s2.getId(), car2.getId());
+        cps.endReservation(r4.getId(), c2.getId());
+
+        //zaplatit inym userom - OK
+        //dat rovnakemu userovi - KO
+        //dat rovnakemu userovi novy - OK
+        //zaplatit inym kuponom ako ma user
+    }
+
+        public static void deleteSimple() {
         CarParkService cps = new CarParkService();
 
         System.out.println("\n-------- Carparks");

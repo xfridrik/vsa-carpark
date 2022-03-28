@@ -21,7 +21,7 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "user", cascade = {CascadeType.ALL}, orphanRemoval = true)
     private List<Car> cars;
 
-    @OneToMany(mappedBy = "user")
+    @ManyToMany
     private Collection<DiscountCoupon> coupons = new ArrayList<>();
 
 

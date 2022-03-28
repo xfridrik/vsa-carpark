@@ -762,7 +762,6 @@ public class CarParkService extends AbstractCarParkService{
             u = em.find(User.class, userId);
             if (u!=null){
                 u.getCars().forEach((car)-> deleteCar(car.getId()));
-                u.getCoupons().forEach((coupon)->coupon.setUser(null));
                 em.remove(u);
             }
             em.getTransaction().commit();
@@ -913,7 +912,6 @@ public class CarParkService extends AbstractCarParkService{
         DiscountCoupon dc = new DiscountCoupon();
         dc.setDiscount(discount);
         dc.setName(name);
-        dc.setUser(null);
         try {
             persist(em,dc);
         }catch (Exception e){
@@ -929,16 +927,17 @@ public class CarParkService extends AbstractCarParkService{
         if(couponId == null || userId == null) return;
         EntityManager em = emf.createEntityManager();
 
-        //ci bol pouzity
-        TypedQuery<Object> q = em.createQuery("select r from Reservation r where r.usedDiscountCoupon.id=:cid", Object.class);
+        //ci bol pouzity danym userom
+        TypedQuery<Object> q = em.createQuery("select r from Reservation r where r.usedDiscountCoupon.id=:cid and r.car.user.id=:uid", Object.class);
         q.setParameter("cid",couponId);
+        q.setParameter("uid",userId);
         if(q.getResultList().size()>0){
             return;
         }
 
         //najde kupon
         DiscountCoupon coupon = em.find(DiscountCoupon.class,couponId);
-        if(coupon == null || coupon.getUser() != null){
+        if(coupon == null){
             return;
         }
 
@@ -950,9 +949,9 @@ public class CarParkService extends AbstractCarParkService{
 
         //priradi kupon
         try{
-            coupon.setUser(user);
             user = em.merge(user);
             user.getCoupons().add(coupon);
+            coupon.getUsers().add(user);
             persist(em, coupon);
         }catch (Exception e){
             return;
@@ -986,32 +985,34 @@ public class CarParkService extends AbstractCarParkService{
         Reservation res = em.find(Reservation.class,reservationId);
         DiscountCoupon coupon = em.find(DiscountCoupon.class,couponId);
         if(coupon==null){
+            em.close();
             return endReservation(reservationId);
         }
         if(res == null){em.close(); return null;}
-        if(coupon.getUser() == null || res.getParkingSpot().getCarParkFloor() == null){
+        if(res.getParkingSpot().getCarParkFloor() == null || res.getCar() == null){
             em.close();
             return null;
         }
-        // Ak existuju a kupon nie je skonceny a kupon patri majitelovi auta v rezervacii
-        if(res.getEndDate()==null && Objects.equals(coupon.getUser().getId(), res.getCar().getUser().getId())){
+        //Ak uzivatel nema takyto kupon
+        if(!res.getCar().getUser().getCoupons().contains(coupon)){
+            em.close();
+            return endReservation(reservationId);
+        }
+        // neskoncena rezervacia
+        if(res.getEndDate()==null){
             CarPark cp = em.find(CarPark.class,res.getParkingSpot().getCarParkFloor().getId().carParkID());
             if(cp == null){
                 em.close();
                 return null;
             }
             res.setUsedDiscountCoupon(coupon);
-            coupon.setUsedInReservation(res);
-            coupon.getUser().getCoupons().remove(coupon);
-            coupon.setUser(null);
-
+            res.getCar().getUser().getCoupons().remove(coupon);
+            coupon.getUsers().remove(res.getCar().getUser());
             // discount price calculation
             res.setEndDate(new Date(System.currentTimeMillis()));
             long diff = res.getEndDate().getTime() - res.getStartDate().getTime();
             Integer price = cp.getPricePerHour() * (int) Math.ceil(diff/3600000.0) * (100-coupon.getDiscount());
-            //Integer discountPrice = (int) Math.round(price*coupon.getDiscount()/100.0);
             res.setPriceInCents(price);
-            //res.getParkingSpot().setCurrentCar(null);
 
             em.getTransaction().begin();
             try {
@@ -1037,13 +1038,13 @@ public class CarParkService extends AbstractCarParkService{
         DiscountCoupon coupon = em.find(DiscountCoupon.class,couponId);
         if(coupon != null){
             em.getTransaction().begin();
-            // delete coupon from user
-            if(coupon.getUser()!=null){
-                coupon.getUser().getCoupons().remove(coupon);
-                em.merge(coupon.getUser());
-            }
-            coupon.setUser(null);
-            em.persist(coupon);
+            // delete coupon from users
+            coupon.getUsers().forEach((user)->{
+                user.getCoupons().remove(coupon);
+                em.merge(user);
+            });
+            coupon.setUsers(new ArrayList<>());
+            em.merge(coupon);
             em.getTransaction().commit();
             em.close();
             return coupon;

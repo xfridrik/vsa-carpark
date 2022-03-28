@@ -21,7 +21,7 @@ public class Reservation implements Serializable {
     @ManyToOne
     private ParkingSpot parkingSpot;
 
-    @OneToOne
+    @ManyToOne
     private DiscountCoupon usedDiscountCoupon;
 
     public Car getCar() {

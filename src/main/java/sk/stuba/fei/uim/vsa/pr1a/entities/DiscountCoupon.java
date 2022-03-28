@@ -2,6 +2,9 @@ package sk.stuba.fei.uim.vsa.pr1a.entities;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
 
 @Entity
 @Table(name = "DISCOUNT_COUPON")
@@ -12,27 +15,9 @@ public class DiscountCoupon implements Serializable {
     private String name;
     @Column(nullable = false)
     private Integer discount;
-    @ManyToOne
-    private User user;
-    @OneToOne(mappedBy = "usedDiscountCoupon")
-    private Reservation usedInReservation;
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-
-    public Reservation getUsedInReservation() {
-        return usedInReservation;
-    }
-
-    public void setUsedInReservation(Reservation usedInReservation) {
-        this.usedInReservation = usedInReservation;
-    }
+    @ManyToMany
+    private Collection<User> users = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -58,14 +43,33 @@ public class DiscountCoupon implements Serializable {
         this.discount = discount;
     }
 
+    public Collection<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Collection<User> users) {
+        this.users = users;
+    }
+
     @Override
     public String toString() {
         return "DiscountCoupon{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", discount=" + discount +
-                ", user=" + user +
-                ", usedInReservation=" + usedInReservation +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DiscountCoupon coupon = (DiscountCoupon) o;
+        return id.equals(coupon.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
