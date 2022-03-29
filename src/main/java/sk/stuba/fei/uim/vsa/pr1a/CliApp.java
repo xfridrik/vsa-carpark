@@ -119,7 +119,7 @@ public class CliApp {
                 case "D":
                 case "d":
                 case "delete":
-                    System.out.println("Vyber entitu - car, carpark, floor, user, spot, reservation end, reservation coupon, coupon alebo Q pre vrátenie sa");
+                    System.out.println("Vyber entitu - car, carpark, floor, user, spot, reservation end, reservation end coupon, coupon alebo Q pre vrátenie sa");
                     String delInput = KeyboardInput.readString("").trim();
                     switch (delInput){
                         case "car":
@@ -140,7 +140,7 @@ public class CliApp {
                         case "reservation end":
                             CLICendReservation();
                             break;
-                        case "reservation coupon":
+                        case "reservation end coupon":
                             CLICendCouponReservation();
                             break;
                         case "coupon":

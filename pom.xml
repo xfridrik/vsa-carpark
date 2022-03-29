@@ -8,6 +8,14 @@
     <artifactId>b-vsa-ls22-project1-A</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
+    <developers>
+        <developer>
+            <id>104457</id>
+            <name>Martin Fridrik</name>
+            <email>xfridrik@stuba.sk</email>
+            <organization>STU</organization>
+        </developer>
+    </developers>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

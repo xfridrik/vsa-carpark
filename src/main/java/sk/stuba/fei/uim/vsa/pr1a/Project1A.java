@@ -39,9 +39,6 @@ public class Project1A {
         cps.deleteUser(u1.getId());
         System.out.println("c1 vlastnici "+((DiscountCoupon)cps.getCoupon(c1.getId())).getUsers().size());
 
-
-
-
     }
 
     public static void couponGiving() {
@@ -80,6 +77,7 @@ public class Project1A {
         Reservation r2 = (Reservation) cps.createReservation(s2.getId(), car2.getId());
         Reservation r3 = (Reservation) cps.createReservation(s3.getId(), car3.getId());
 
+        cps.deleteCoupon(c2.getId());
         //dat userovi
         //zaplatit rezervaciu
         cps.endReservation(r1.getId(), c1.getId());
@@ -87,6 +85,7 @@ public class Project1A {
         //dat inemu userovi - OK
         cps.endReservation(r3.getId(), c1.getId());
 
+        cps.deleteCoupon(c1.getId());
 
         System.out.println("u1 kupony"+cps.getCoupons(u1.getId()));
         System.out.println("u2 kupony"+cps.getCoupons(u2.getId()));
@@ -94,11 +93,6 @@ public class Project1A {
 
         Reservation r4 = (Reservation) cps.createReservation(s2.getId(), car2.getId());
         cps.endReservation(r4.getId(), c2.getId());
-
-        //zaplatit inym userom - OK
-        //dat rovnakemu userovi - KO
-        //dat rovnakemu userovi novy - OK
-        //zaplatit inym kuponom ako ma user
     }
 
         public static void deleteSimple() {

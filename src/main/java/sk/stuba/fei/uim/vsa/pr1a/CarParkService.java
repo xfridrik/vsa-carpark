@@ -82,7 +82,7 @@ public class CarParkService extends AbstractCarParkService{
         }catch (Exception e){
             e.printStackTrace();
             em.close();
-            return null;
+            return new ArrayList<>();
         }
         em.close();
         return cpList;
@@ -222,11 +222,10 @@ public class CarParkService extends AbstractCarParkService{
         try{
             cp = em.find(CarPark.class,carParkId);
         }catch (Exception e){
-            //e.printStackTrace();
             em.close();
-            return null;
+            return new ArrayList<>();
         }
-        if(cp==null) {em.close(); return null;}
+        if(cp==null) {em.close(); return new ArrayList<>();}
         em.close();
         return new ArrayList<>(cp.getFloors());
     }
@@ -356,9 +355,9 @@ public class CarParkService extends AbstractCarParkService{
         }catch (Exception e){
             e.printStackTrace();
             em.close();
-            return null;
+            return new ArrayList<>();
         }
-        if(floor == null) {em.close(); return null;}
+        if(floor == null) {em.close(); return new ArrayList<>();}
         em.close();
         return new ArrayList<>(floor.getSpots());
     }
@@ -370,11 +369,13 @@ public class CarParkService extends AbstractCarParkService{
         try {
             cp = em.find(CarPark.class,carParkId);
         }catch (Exception e){
-            //e.printStackTrace();
             em.close();
-            return null;
+            return new HashMap<>();
         }
-        if(cp==null){em.close(); return null;}
+        if(cp==null){
+            em.close();
+            return new HashMap<>();
+        }
 
         Map<String, List<Object>> spots = new HashMap<>();
         cp.getFloors().forEach((floor)-> spots.put(floor.getId().getFloorId(), new ArrayList<>(floor.getSpots())));
@@ -388,7 +389,7 @@ public class CarParkService extends AbstractCarParkService{
         CarPark cp = (CarPark) getCarPark(carParkName);
         if(cp==null){
             em.close();
-            return null;
+            return new HashMap<>();
         }
 
         Map<String, List<Object>> availableSpots = getParkingSpots(cp.getId());
@@ -396,7 +397,7 @@ public class CarParkService extends AbstractCarParkService{
 
         if(availableSpots == null || occupiedSpots == null){
             em.close();
-            return null;
+            return new HashMap<>();
         }
 
         availableSpots.forEach((floorIdentifier,spots)->{
@@ -413,7 +414,7 @@ public class CarParkService extends AbstractCarParkService{
         CarPark cp = (CarPark) getCarPark(carParkName);
         if(cp==null){
             em.close();
-            return null;
+            return new HashMap<>();
         }
         Map<String, List<Object>> occupiedSpots = new HashMap<>();
         // Iterate Floors
@@ -560,10 +561,11 @@ public class CarParkService extends AbstractCarParkService{
         }catch (Exception e){
             //e.printStackTrace();
             em.close();
-            return null;
+            return new ArrayList<>();
         }
-        if(user==null){em.close(); return null;}
         em.close();
+        if(user==null) return new ArrayList<>();
+
         return new ArrayList<>(user.getCars());
     }
 
@@ -852,7 +854,7 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public List<Object> getReservations(Long parkingSpotId, Date date) {
-        if(parkingSpotId == null || date == null) return null;
+        if(parkingSpotId == null || date == null) return new ArrayList<>();
 
         EntityManager em = emf.createEntityManager();
         SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
@@ -873,7 +875,7 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public List<Object> getMyReservations(Long userId) {
-        if(userId == null) return null;
+        if(userId == null) return new ArrayList<>();
         EntityManager em = emf.createEntityManager();
         TypedQuery<Object> q = em.createQuery("select r from Reservation r where r.car.user.id=:uid and r.endDate = null", Object.class);
         q.setParameter("uid",userId);
@@ -973,11 +975,11 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public List<Object> getCoupons(Long userId) {
-        if(userId == null) return null;
+        if(userId == null) return new ArrayList<>();
         EntityManager em = emf.createEntityManager();
         User user = em.find(User.class, userId);
-        if(user==null){em.close(); return null;}
         em.close();
+        if(user==null) return new ArrayList<>();
         return new ArrayList<>(user.getCoupons());
     }
 
@@ -1039,6 +1041,10 @@ public class CarParkService extends AbstractCarParkService{
         if (couponId == null) return null;
         EntityManager em = emf.createEntityManager();
         DiscountCoupon coupon = em.find(DiscountCoupon.class,couponId);
+
+        TypedQuery<Object> q = em.createQuery("select r from Reservation r where r.usedDiscountCoupon.id=:cid", Object.class);
+        q.setParameter("cid",couponId);
+
         if(coupon != null){
             em.getTransaction().begin();
             // delete coupon from users
@@ -1047,7 +1053,14 @@ public class CarParkService extends AbstractCarParkService{
                 em.merge(user);
             });
             coupon.setUsers(new ArrayList<>());
-            em.merge(coupon);
+
+            if(q.getResultList().size()>0){
+                //je použitý v rezerváciách
+                em.merge(coupon);
+            }else{
+                em.remove(coupon);
+            }
+
             em.getTransaction().commit();
             em.close();
             return coupon;
