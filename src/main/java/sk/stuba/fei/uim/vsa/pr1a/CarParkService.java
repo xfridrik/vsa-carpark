@@ -130,7 +130,7 @@ public class CarParkService extends AbstractCarParkService{
         if(cp == null){em.close(); return null;}
 
         //End active reservations
-        TypedQuery<Reservation> r = em.createQuery("SELECT r from Reservation r where r.priceInCents = null and r.parkingSpot.carParkFloor.id.carParkID = :parkid", Reservation.class);
+        TypedQuery<Reservation> r = em.createQuery("SELECT r from Reservation r where r.price = null and r.parkingSpot.carParkFloor.id.carParkID = :parkid", Reservation.class);
         r.setParameter("parkid",carParkId);
 
         //get all reservations to remove spots
@@ -262,7 +262,7 @@ public class CarParkService extends AbstractCarParkService{
         if(cpf == null || cp == null) {em.close(); return null;}
 
         //End active reservations
-        TypedQuery<Reservation> r = em.createQuery("SELECT r from Reservation r where r.priceInCents = null and r.parkingSpot.carParkFloor.id.carParkID = :parkid and r.parkingSpot.carParkFloor.id.floorId = :floorid", Reservation.class);
+        TypedQuery<Reservation> r = em.createQuery("SELECT r from Reservation r where r.price = null and r.parkingSpot.carParkFloor.id.carParkID = :parkid and r.parkingSpot.carParkFloor.id.floorId = :floorid", Reservation.class);
         r.setParameter("parkid",carParkId);
         r.setParameter("floorid",floorIdentifier);
 
@@ -488,7 +488,7 @@ public class CarParkService extends AbstractCarParkService{
             return null;
         }
         //End active reservations with this spot
-        TypedQuery<Reservation> r = em.createQuery("SELECT r from Reservation r where r.priceInCents = null and r.parkingSpot.id = :spotid", Reservation.class);
+        TypedQuery<Reservation> r = em.createQuery("SELECT r from Reservation r where r.price = null and r.parkingSpot.id = :spotid", Reservation.class);
         r.setParameter("spotid",parkingSpotId);
 
         //get all reservations to remove this spot
@@ -661,7 +661,7 @@ public class CarParkService extends AbstractCarParkService{
         if(c==null){em.close();return null;}
 
         //End active reservations with this car
-        TypedQuery<Reservation> r = em.createQuery("SELECT r from Reservation r where r.priceInCents = null and r.car.id = :spotid", Reservation.class);
+        TypedQuery<Reservation> r = em.createQuery("SELECT r from Reservation r where r.price = null and r.car.id = :spotid", Reservation.class);
         r.setParameter("spotid",carId);
 
         //get all reservations to remove this car
@@ -882,8 +882,8 @@ public class CarParkService extends AbstractCarParkService{
             res.setEndDate(new Date(System.currentTimeMillis()));
             long diff = res.getEndDate().getTime() - res.getStartDate().getTime();
             if (diff<10) diff = 10;
-            Integer price = cp.getPricePerHour() * (int) Math.ceil(diff/3600000.0) * 100;
-            res.setPriceInCents(price);
+            int price = cp.getPricePerHour() * (int) Math.ceil(diff/3600000.0) * 100;
+            res.setPrice(price/100.0);
             persist(em,res);
             return res;
         }
@@ -1055,8 +1055,8 @@ public class CarParkService extends AbstractCarParkService{
             // discount price calculation
             res.setEndDate(new Date(System.currentTimeMillis()));
             long diff = res.getEndDate().getTime() - res.getStartDate().getTime();
-            Integer price = cp.getPricePerHour() * (int) Math.ceil(diff/3600000.0) * (100-coupon.getDiscount());
-            res.setPriceInCents(price);
+            int price = cp.getPricePerHour() * (int) Math.ceil(diff/3600000.0) * (100-coupon.getDiscount());
+            res.setPrice(price/100.0);
 
             em.getTransaction().begin();
             try {

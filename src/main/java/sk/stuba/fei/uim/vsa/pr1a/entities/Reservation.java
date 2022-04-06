@@ -14,7 +14,7 @@ public class Reservation implements Serializable {
 
     private Date startDate;
     private Date endDate;
-    private Integer priceInCents;
+    private Double price;
 
     @ManyToOne
     private Car car;
@@ -65,12 +65,12 @@ public class Reservation implements Serializable {
         this.endDate = endDate;
     }
 
-    public Integer getPriceInCents() {
-        return priceInCents;
+    public Double getPrice() {
+        return price;
     }
 
-    public void setPriceInCents(Integer priceInCents) {
-        this.priceInCents = priceInCents;
+    public void setPrice(Double price) {
+        this.price = price;
     }
 
     @Override
@@ -79,7 +79,7 @@ public class Reservation implements Serializable {
                 "id=" + id +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
-                ", price=" + priceInCents + " cents"+
+                ", price=" + price +
                 ", car=" + car.getVehicleRegistrationPlate() +
                 ", parkingSpot=" + parkingSpot.getSpotIdentifier() +
                 '}';
