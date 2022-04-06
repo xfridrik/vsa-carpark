@@ -2,13 +2,10 @@ package sk.stuba.fei.uim.vsa.pr1a.entities;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
-@Table(name = "USER")
+@Table(name = "\"USER\"")
 public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -72,7 +69,8 @@ public class User implements Serializable {
                 ", firstname='" + firstname + '\'' +
                 ", lastname='" + lastname + '\'' +
                 ", email='" + email + '\'' +
-                ", cars=" + cars +
+                ", cars=" + Arrays.toString(cars.toArray()) +
+                ", coupons=" + Arrays.toString(coupons.toArray()) +
                 '}';
     }
 

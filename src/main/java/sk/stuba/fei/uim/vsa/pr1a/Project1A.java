@@ -21,7 +21,6 @@ public class Project1A {
        // getCarPark();
         //removeCoupons();
         //deleteUserWithCoupons();
-
     }
 
     public static void deleteUserWithCoupons() {

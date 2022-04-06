@@ -35,7 +35,7 @@ public class FloorId implements Serializable {
     @Override
     public String toString() {
         return "FloorId{" +
-                "floorId='" + floorId + '\'' +
+                "identifier='" + floorId + '\'' +
                 ", carParkID=" + carParkID +
                 '}';
     }

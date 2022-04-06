@@ -3,6 +3,7 @@ package sk.stuba.fei.uim.vsa.pr1a.entities;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -75,7 +76,7 @@ public class CarPark implements Serializable {
                 ", name='" + name + '\'' +
                 ", address='" + address + '\'' +
                 ", pricePerHour=" + pricePerHour +
-                ", floors=" + floors +
+                ", floors=" + Arrays.toString(floors.toArray()) +
                 '}';
     }
 

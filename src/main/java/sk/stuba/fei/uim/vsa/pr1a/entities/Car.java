@@ -74,7 +74,7 @@ public class Car implements Serializable {
                 ", model='" + model + '\'' +
                 ", color='" + colour + '\'' +
                 ", licensePlateNumber='" + vehicleRegistrationPlate + '\'' +
-                ", user='" + user.getId() + '\'' +
+                ", userID='" + user.getId() + '\'' +
                 '}';
     }
 

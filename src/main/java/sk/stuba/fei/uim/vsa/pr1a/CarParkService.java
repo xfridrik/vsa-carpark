@@ -803,9 +803,7 @@ public class CarParkService extends AbstractCarParkService{
             u = em.find(User.class, userId);
             if (u!=null){
                 u.getCars().forEach((car)-> deleteCar(car.getId()));
-                u.getCoupons().forEach((coupon)->{
-                    coupon.getUsers().remove(u);
-                });
+                u.getCoupons().forEach((coupon)-> coupon.getUsers().remove(u));
                 em.remove(u);
             }
             em.getTransaction().commit();
