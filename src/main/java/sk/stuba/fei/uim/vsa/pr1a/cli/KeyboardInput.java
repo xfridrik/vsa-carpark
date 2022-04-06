@@ -1,4 +1,4 @@
-package sk.stuba.fei.uim.vsa.pr1a;
+package sk.stuba.fei.uim.vsa.pr1a.cli;
 
 /* source : https://github.com/Interes-Group/b-vsa-example-app/blob/master/src/main/java/sk/stuba/fei/uim/vsa/ui/KeyboardInput.java */
 

@@ -1,6 +1,5 @@
 package sk.stuba.fei.uim.vsa.pr1a.entities;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;

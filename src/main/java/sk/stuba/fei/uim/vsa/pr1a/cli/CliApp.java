@@ -1,5 +1,6 @@
-package sk.stuba.fei.uim.vsa.pr1a;
+package sk.stuba.fei.uim.vsa.pr1a.cli;
 
+import sk.stuba.fei.uim.vsa.pr1a.CarParkService;
 import sk.stuba.fei.uim.vsa.pr1a.entities.*;
 
 import java.text.SimpleDateFormat;
@@ -103,7 +104,7 @@ public class CliApp {
                         case "spot":
                             CLICupdateSpot();
                             break;
-                        case "reservations":
+                        case "reservation":
                             CLICupdateReservations();
                             break;
                         case "coupon":
@@ -165,14 +166,15 @@ public class CliApp {
         }
     }
 
-//TODO: START DATE!
     private void CLICupdateReservations() {
         Reservation reservation;
         Reservation newReservation = new Reservation();
         newReservation.setId((long) KeyboardInput.readInt("Zadaj ID rezervácie"));
-        //newReservation.setSpotIdentifier(KeyboardInput.readString("Zadaj nový identifikátor miesta").trim());
+        String date = KeyboardInput.readString("Zadaj dátum v tvare dd/mm/yyyy HH:mm:ss").trim();
         try{
-            reservation = (Reservation) cps.updateUser(newReservation);
+            Date date1=new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(date);
+            newReservation.setStartDate(date1);
+            reservation = (Reservation) cps.updateReservation(newReservation);
         }catch (Exception e){
             reservation = null;
         }
@@ -194,7 +196,7 @@ public class CliApp {
         newSpot.setId((long) KeyboardInput.readInt("Zadaj ID parkovacieho miesta"));
         newSpot.setSpotIdentifier(KeyboardInput.readString("Zadaj nový identifikátor miesta").trim());
         try{
-            spot = (ParkingSpot) cps.updateUser(newSpot);
+            spot = (ParkingSpot) cps.updateParkingSpot(newSpot);
         }catch (Exception e){
             spot = null;
         }
@@ -230,6 +232,7 @@ public class CliApp {
         CarPark carPark;
         CarPark newCarPark = new CarPark();
         newCarPark.setId((long) KeyboardInput.readInt("Zadaj ID carparku"));
+        newCarPark.setName(KeyboardInput.readString("Zadaj nový názov").trim());
         newCarPark.setAddress(KeyboardInput.readString("Zadaj novú adresu").trim());
         newCarPark.setPricePerHour(KeyboardInput.readInt("Zadaj novú cenu"));
         try{
@@ -252,7 +255,7 @@ public class CliApp {
         newCar.setBrand(KeyboardInput.readString("Zadaj novú značku auta").trim());
         newCar.setModel(KeyboardInput.readString("Zadaj nový model").trim());
         newCar.setColour(KeyboardInput.readString("Zadaj novú farbu").trim());
-        newCar.setColour(KeyboardInput.readString("Zadaj EČV").trim());
+        newCar.setVehicleRegistrationPlate(KeyboardInput.readString("Zadaj EČV").trim());
         try{
             newCar.setUser((User) cps.getUser(uid));
             car = (Car) cps.updateCar(newCar);
@@ -279,7 +282,7 @@ public class CliApp {
 
     private void CLICdelCoupon() {
         DiscountCoupon coupon;
-        Long couponId = (long) KeyboardInput.readInt("Zadaj ID kupónu pre vymazanie od užívateľa");
+        Long couponId = (long) KeyboardInput.readInt("Zadaj ID kupónu pre vymazanie");
         try{
             coupon = (DiscountCoupon) cps.deleteCoupon(couponId);
         }catch (Exception e){
@@ -288,7 +291,7 @@ public class CliApp {
         if(coupon == null){
             System.out.println("Nepodarilo sa vymazať, skontroluj zadané údaje a skús znova");
         }else {
-            System.out.println("Kupón odstránený od užívateľa:"+ coupon);
+            System.out.println("Kupón odstránený: "+ coupon);
         }
 
     }
@@ -377,7 +380,7 @@ public class CliApp {
         CarPark carpark;
         Long carParkId = (long) KeyboardInput.readInt("Zadaj ID carparku");
         try{
-            carpark = (CarPark) cps.getCarPark(carParkId);
+            carpark = (CarPark) cps.deleteCarPark(carParkId);
         }catch (Exception e){
             carpark = null;
         }

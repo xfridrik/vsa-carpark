@@ -452,14 +452,16 @@ public class CarParkService extends AbstractCarParkService{
             em.close(); return null;
         }
 
-        // UNIQUE VRÁMCI CARPARKU
-        TypedQuery<ParkingSpot> q = em.createQuery("select p from ParkingSpot p where p.carParkFloor.id.carParkID=:parkid and p.spotIdentifier=:spotid", ParkingSpot.class);
-        q.setParameter("spotid",spot.getSpotIdentifier());
-        q.setParameter("parkid", currentSpot.getCarParkFloor().getId().carParkID());
+        if(!Objects.equals(currentSpot.getSpotIdentifier(), spot.getSpotIdentifier())){
+            // UNIQUE VRÁMCI CARPARKU
+            TypedQuery<ParkingSpot> q = em.createQuery("select p from ParkingSpot p where p.carParkFloor.id.carParkID=:parkid and p.spotIdentifier=:spotid", ParkingSpot.class);
+            q.setParameter("spotid",spot.getSpotIdentifier());
+            q.setParameter("parkid", currentSpot.getCarParkFloor().getId().carParkID());
 
-        if(q.getResultList().size()!=0){
-            em.close();
-            return null;
+            if(q.getResultList().size()!=0){
+                em.close();
+                return null;
+            }
         }
 
         currentSpot.setSpotIdentifier(spot.getSpotIdentifier());
