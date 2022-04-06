@@ -24,7 +24,6 @@ public class ParkingSpot implements Serializable {
         this.id = id;
     }
 
-
     public CarParkFloor getCarParkFloor() {
         return carParkFloor;
     }

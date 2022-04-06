@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "CAR_PARK")
@@ -59,6 +60,13 @@ public class CarPark implements Serializable {
         this.floors.add(floor);
     }
 
+    public List<CarParkFloor> getFloors() {
+        return floors;
+    }
+
+    public void setFloors(List<CarParkFloor> floors) {
+        this.floors = floors;
+    }
 
     @Override
     public String toString() {
@@ -71,11 +79,16 @@ public class CarPark implements Serializable {
                 '}';
     }
 
-    public List<CarParkFloor> getFloors() {
-        return floors;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CarPark carPark = (CarPark) o;
+        return id.equals(carPark.id);
     }
 
-    public void setFloors(List<CarParkFloor> floors) {
-        this.floors = floors;
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

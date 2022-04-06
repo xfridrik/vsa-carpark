@@ -11,12 +11,8 @@ import java.util.*;
 public class CarParkService extends AbstractCarParkService{
     @Override
     public Object createCarPark(String name, String address, Integer pricePerHour) {
-        if(name == null || pricePerHour == null){
-            return null;
-        }
-        if(getCarPark(name)!=null){
-            return null;
-        }
+        if(name == null || pricePerHour == null) return null;
+        if(getCarPark(name)!=null) return null;
 
         CarPark carPark = new CarPark();
         carPark.setName(name);
@@ -36,6 +32,7 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object getCarPark(Long carParkId) {
+        if(carParkId == null) return null;
         EntityManager em = emf.createEntityManager();
         CarPark cp;
         try{
@@ -94,8 +91,8 @@ public class CarParkService extends AbstractCarParkService{
         if(carPark instanceof CarPark){
             cp = (CarPark) carPark;
         }else return null;
-        if(cp.getId() == null || cp.getName() == null || cp.getPricePerHour() == null) return null;
 
+        if(cp.getId() == null || cp.getName() == null || cp.getPricePerHour() == null) return null;
         EntityManager em = emf.createEntityManager();
         CarPark currentCarPark;
         try {
@@ -131,6 +128,7 @@ public class CarParkService extends AbstractCarParkService{
         EntityManager em = emf.createEntityManager();
         CarPark cp = em.find(CarPark.class,carParkId);
         if(cp == null){em.close(); return null;}
+
         //End active reservations
         TypedQuery<Reservation> r = em.createQuery("SELECT r from Reservation r where r.priceInCents = null and r.parkingSpot.carParkFloor.id.carParkID = :parkid", Reservation.class);
         r.setParameter("parkid",carParkId);
@@ -201,7 +199,7 @@ public class CarParkService extends AbstractCarParkService{
         try{
             cpf = em.find(CarParkFloor.class,fid);
         }catch (Exception e){
-            e.printStackTrace();
+            //e.printStackTrace();
             em.close();
             return null;
         }
@@ -225,7 +223,10 @@ public class CarParkService extends AbstractCarParkService{
             em.close();
             return new ArrayList<>();
         }
-        if(cp==null) {em.close(); return new ArrayList<>();}
+        if(cp==null) {
+            em.close();
+            return new ArrayList<>();
+        }
         em.close();
         return new ArrayList<>(cp.getFloors());
     }
@@ -236,6 +237,7 @@ public class CarParkService extends AbstractCarParkService{
         if(carParkFloor instanceof CarParkFloor){
             cpf = (CarParkFloor) carParkFloor;
         }else return null;
+
         EntityManager em = emf.createEntityManager();
         CarParkFloor currentCarParkFloor;
         try {
@@ -303,10 +305,12 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object createParkingSpot(Long carParkId, String floorIdentifier, String spotIdentifier) {
+        if(carParkId == null || floorIdentifier == null || spotIdentifier == null) return null;
         CarParkFloor floor = (CarParkFloor) getCarParkFloor(carParkId,floorIdentifier);
         if (floor == null) return null;
 
         EntityManager em = emf.createEntityManager();
+        // Find duplicate identifier in carpark
         TypedQuery<ParkingSpot> q = em.createQuery("select p from ParkingSpot p where p.carParkFloor.id.carParkID=:parkid and p.spotIdentifier=:spotid", ParkingSpot.class);
         q.setParameter("spotid",spotIdentifier);
         q.setParameter("parkid",carParkId);
@@ -333,6 +337,7 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object getParkingSpot(Long parkingSpotId) {
+        if(parkingSpotId == null) return null;
         EntityManager em = emf.createEntityManager();
         ParkingSpot ps;
         try {
@@ -348,6 +353,7 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public List<Object> getParkingSpots(Long carParkId, String floorIdentifier) {
+        if(carParkId == null || floorIdentifier == null) return null;
         EntityManager em = emf.createEntityManager();
         CarParkFloor floor;
         try {
@@ -357,13 +363,17 @@ public class CarParkService extends AbstractCarParkService{
             em.close();
             return new ArrayList<>();
         }
-        if(floor == null) {em.close(); return new ArrayList<>();}
+        if(floor == null) {
+            em.close();
+            return new ArrayList<>();
+        }
         em.close();
         return new ArrayList<>(floor.getSpots());
     }
 
     @Override
     public Map<String, List<Object>> getParkingSpots(Long carParkId) {
+        if(carParkId == null) return null;
         EntityManager em = emf.createEntityManager();
         CarPark cp;
         try {
@@ -435,14 +445,32 @@ public class CarParkService extends AbstractCarParkService{
             spot = (ParkingSpot) parkingSpot;
         }else return null;
         if(spot.getSpotIdentifier()==null) return null;
+
         EntityManager em = emf.createEntityManager();
         ParkingSpot currentSpot = em.find(ParkingSpot.class,(spot.getId()));
-        if(currentSpot == null){em.close(); return null;}
-        currentSpot.setSpotIdentifier(spot.getSpotIdentifier());
+        if(currentSpot == null || currentSpot.getCarParkFloor().getId().carParkID() == null){
+            em.close(); return null;
+        }
 
-        em.getTransaction().begin();
-        em.merge(currentSpot);
-        em.getTransaction().commit();
+        // UNIQUE VRÁMCI CARPARKU
+        TypedQuery<ParkingSpot> q = em.createQuery("select p from ParkingSpot p where p.carParkFloor.id.carParkID=:parkid and p.spotIdentifier=:spotid", ParkingSpot.class);
+        q.setParameter("spotid",spot.getSpotIdentifier());
+        q.setParameter("parkid", currentSpot.getCarParkFloor().getId().carParkID());
+
+        if(q.getResultList().size()!=0){
+            em.close();
+            return null;
+        }
+
+        currentSpot.setSpotIdentifier(spot.getSpotIdentifier());
+        try {
+            em.getTransaction().begin();
+            em.merge(currentSpot);
+            em.getTransaction().commit();
+        }catch (Exception e){
+            em.close();
+            return null;
+        }
         em.close();
         return currentSpot;
     }
@@ -453,8 +481,10 @@ public class CarParkService extends AbstractCarParkService{
 
         EntityManager em = emf.createEntityManager();
         ParkingSpot spot = em.find(ParkingSpot.class, parkingSpotId);
-        if(spot == null){em.close(); return null;}
-
+        if(spot == null){
+            em.close();
+            return null;
+        }
         //End active reservations with this spot
         TypedQuery<Reservation> r = em.createQuery("SELECT r from Reservation r where r.priceInCents = null and r.parkingSpot.id = :spotid", Reservation.class);
         r.setParameter("spotid",parkingSpotId);
@@ -491,8 +521,10 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object createCar(Long userId, String brand, String model, String colour, String vehicleRegistrationPlate) {
+        if(userId == null || vehicleRegistrationPlate == null) return null;
+
         User u = (User) getUser(userId);
-        if(u==null){return null;}
+        if(u==null) return null;
         Car car = new Car();
         car.setUser(u);
         car.setBrand(brand);
@@ -518,6 +550,7 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object getCar(Long carId) {
+        if(carId == null) return null;
         EntityManager em = emf.createEntityManager();
         Car car;
         try{
@@ -533,6 +566,7 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object getCar(String vehicleRegistrationPlate) {
+        if(vehicleRegistrationPlate == null) return null;
         EntityManager em = emf.createEntityManager();
         TypedQuery<Car> q = em.createQuery("select c from Car c where c.vehicleRegistrationPlate=:plate", Car.class);
         try{
@@ -546,7 +580,6 @@ public class CarParkService extends AbstractCarParkService{
             e.printStackTrace();
             em.close();
             return null;
-
         }
         em.close();
         return null;
@@ -554,6 +587,8 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public List<Object> getCars(Long userId) {
+        if(userId == null) return null;
+
         EntityManager em = emf.createEntityManager();
         User user;
         try{
@@ -658,6 +693,7 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object createUser(String firstname, String lastname, String email) {
+        if(email == null) return null;
         User user = new User();
         user.setFirstname(firstname);
         user.setLastname(lastname);
@@ -681,6 +717,7 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object getUser(Long userId) {
+        if(userId == null) return null;
         EntityManager em = emf.createEntityManager();
         User user;
         try{
@@ -696,6 +733,7 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object getUser(String email) {
+        if (email == null) return null;
         EntityManager em = emf.createEntityManager();
         TypedQuery<User> q = em.createQuery("select u from User u where u.email=:email", User.class);
         try{
@@ -706,7 +744,7 @@ public class CarParkService extends AbstractCarParkService{
                 return u;
             }
         }catch (Exception e){
-            e.printStackTrace();
+            //e.printStackTrace();
             em.close();
             return null;
         }
@@ -757,6 +795,7 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object deleteUser(Long userId) {
+        if(userId == null) return null;
         EntityManager em = emf.createEntityManager();
         User u;
         try {
@@ -813,7 +852,6 @@ public class CarParkService extends AbstractCarParkService{
         reservation.setStartDate(new Date(System.currentTimeMillis()));
         em.getTransaction().begin();
         try {
-            em.persist(ps);
             em.persist(reservation);
             em.getTransaction().commit();
         } catch (Exception e) {
@@ -828,6 +866,7 @@ public class CarParkService extends AbstractCarParkService{
     @Override
     public Object endReservation(Long reservationId) {
         if(reservationId == null) return null;
+
         EntityManager em = emf.createEntityManager();
         Reservation res = em.find(Reservation.class,reservationId);
         if(res == null){
@@ -835,7 +874,7 @@ public class CarParkService extends AbstractCarParkService{
             return null;
         }
         if(res.getEndDate()==null && res.getParkingSpot() != null){
-            CarPark cp = em.find(CarPark.class,res.getParkingSpot().getCarParkFloor().getId().carParkID());
+            CarPark cp = em.find(CarPark.class, res.getParkingSpot().getCarParkFloor().getId().carParkID());
             if(cp == null){
                 return null;
             }
@@ -894,10 +933,9 @@ public class CarParkService extends AbstractCarParkService{
 
         EntityManager em = emf.createEntityManager();
         Reservation currentRes = em.find(Reservation.class,(r.getId()));
-        if(currentRes == null || currentRes.getEndDate() != null){em.close(); return null;}
-
-        currentRes.setCar(r.getCar());
-        currentRes.setParkingSpot(r.getParkingSpot());
+        if(currentRes == null || currentRes.getEndDate() != null){
+            em.close(); return null;
+        }
         currentRes.setStartDate(r.getStartDate());
         try{
             em.getTransaction().begin();
@@ -913,6 +951,8 @@ public class CarParkService extends AbstractCarParkService{
 
     @Override
     public Object createDiscountCoupon(String name, Integer discount) {
+        if(discount == null) return null;
+
         EntityManager em = emf.createEntityManager();
         DiscountCoupon dc = new DiscountCoupon();
         dc.setDiscount(discount);
@@ -932,7 +972,7 @@ public class CarParkService extends AbstractCarParkService{
         if(couponId == null || userId == null) return;
         EntityManager em = emf.createEntityManager();
 
-        //ci bol pouzity danym userom
+        // bol pouzity danym userom
         TypedQuery<Object> q = em.createQuery("select r from Reservation r where r.usedDiscountCoupon.id=:cid and r.car.user.id=:uid", Object.class);
         q.setParameter("cid",couponId);
         q.setParameter("uid",userId);
@@ -940,19 +980,17 @@ public class CarParkService extends AbstractCarParkService{
             return;
         }
 
-        //najde kupon
+        // najde kupon
         DiscountCoupon coupon = em.find(DiscountCoupon.class,couponId);
         if(coupon == null){
             return;
         }
-
-        //najde usera
+        // najde usera
         User user = em.find(User.class,userId);
         if(user == null){
             return;
         }
-
-        //priradi kupon
+        // priradi kupon
         try{
             user = em.merge(user);
             user.getCoupons().add(coupon);
@@ -986,6 +1024,7 @@ public class CarParkService extends AbstractCarParkService{
     @Override
     public Object endReservation(Long reservationId, Long couponId) {
         if(reservationId == null || couponId == null) return null;
+
         EntityManager em = emf.createEntityManager();
         Reservation res = em.find(Reservation.class,reservationId);
         DiscountCoupon coupon = em.find(DiscountCoupon.class,couponId);
@@ -1046,22 +1085,25 @@ public class CarParkService extends AbstractCarParkService{
         q.setParameter("cid",couponId);
 
         if(coupon != null){
-            em.getTransaction().begin();
-            // delete coupon from users
-            coupon.getUsers().forEach((user)->{
-                user.getCoupons().remove(coupon);
-                em.merge(user);
-            });
-            coupon.setUsers(new ArrayList<>());
-
-            if(q.getResultList().size()>0){
-                //je použitý v rezerváciách
-                em.merge(coupon);
-            }else{
-                em.remove(coupon);
+            try {
+                em.getTransaction().begin();
+                // delete coupon from users
+                coupon.getUsers().forEach((user)->{
+                    user.getCoupons().remove(coupon);
+                    em.merge(user);
+                });
+                coupon.setUsers(new ArrayList<>());
+                if(q.getResultList().size()>0){
+                    //je použitý v rezerváciách
+                    em.merge(coupon);
+                }else{
+                    em.remove(coupon);
+                }
+                em.getTransaction().commit();
+            }catch (Exception e){
+                em.close();
+                return null;
             }
-
-            em.getTransaction().commit();
             em.close();
             return coupon;
         }

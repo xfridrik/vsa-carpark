@@ -8,9 +8,10 @@ public class Project1A {
 
     public static void main(String[] args) throws InterruptedException {
         CarParkService cps = new CarParkService();
+
         //couponGiving();
         //createCarPark();
-        //create();
+        create();
         //update();
         //deleteSimple();
         CliApp app = new CliApp();
@@ -19,7 +20,7 @@ public class Project1A {
         //createCarPark();
        // getCarPark();
         //removeCoupons();
-        deleteUserWithCoupons();
+        //deleteUserWithCoupons();
 
     }
 
@@ -62,28 +63,43 @@ public class Project1A {
         DiscountCoupon c2 = (DiscountCoupon) cps.createDiscountCoupon("SALE",20);
         cps.giveCouponToUser(c1.getId(), u1.getId());
         cps.giveCouponToUser(c1.getId(), u2.getId());
-
         cps.giveCouponToUser(c2.getId(), u2.getId());
-        System.out.println("u1 kupony"+cps.getCoupons(u1.getId()));
-        System.out.println("u2 kupony"+cps.getCoupons(u2.getId()));
-        System.out.println("c1 vlastnici "+((DiscountCoupon)cps.getCoupon(c1.getId())).getUsers().size());
-        System.out.println("DELETE COUPON");
-        //cps.deleteCoupon(c1.getId());
-        System.out.println("u1 kupony"+cps.getCoupons(u1.getId()));
-        System.out.println("u2 kupony"+cps.getCoupons(u2.getId()));
-        System.out.println("c1 vlastnici "+((DiscountCoupon)cps.getCoupon(c1.getId())).getUsers().size());
 
+        System.out.println("u1 kupony"+cps.getCoupons(u1.getId()));
+        System.out.println("u2 kupony"+cps.getCoupons(u2.getId()));
+        System.out.println("c1 vlastnici "+((DiscountCoupon)cps.getCoupon(c1.getId())).getUsers().size());
+        System.out.println("DELETE COUPON c2");
+        //cps.deleteCoupon(c2.getId());
         Reservation r1 = (Reservation) cps.createReservation(s1.getId(), car1.getId());
         Reservation r2 = (Reservation) cps.createReservation(s2.getId(), car2.getId());
         Reservation r3 = (Reservation) cps.createReservation(s3.getId(), car3.getId());
 
         cps.deleteCoupon(c2.getId());
+
+        System.out.println("u1 kupony"+cps.getCoupons(u1.getId()));
+        System.out.println("u2 kupony"+cps.getCoupons(u2.getId()));
+        System.out.println("c1 vlastnici "+((DiscountCoupon)cps.getCoupon(c1.getId())).getUsers().size());
+
         //dat userovi
         //zaplatit rezervaciu
+        System.out.println("ukoncit rezervacie");
+
         cps.endReservation(r1.getId(), c1.getId());
         cps.endReservation(r2.getId(), c1.getId());
+        System.out.println("u1 kupony"+cps.getCoupons(u1.getId()));
+        System.out.println("u2 kupony"+cps.getCoupons(u2.getId()));
+        System.out.println("c1 vlastnici "+((DiscountCoupon)cps.getCoupon(c1.getId())).getUsers().size());
+
+        System.out.println("ukoncit rezervaciu s dalsim userom");
+
         //dat inemu userovi - OK
         cps.endReservation(r3.getId(), c1.getId());
+
+        System.out.println("u1 kupony"+cps.getCoupons(u1.getId()));
+        System.out.println("u2 kupony"+cps.getCoupons(u2.getId()));
+        System.out.println("c1 vlastnici "+((DiscountCoupon)cps.getCoupon(c1.getId())).getUsers().size());
+
+        System.out.println("delete c1 kupon");
 
         cps.deleteCoupon(c1.getId());
 
@@ -405,6 +421,7 @@ public class Project1A {
         Reservation r2 = (Reservation) cps.createReservation(s2.getId(), c3.getId());
 
         Reservation r3 = (Reservation) cps.createReservation(s7.getId(), c4.getId());
+        Reservation r4 = (Reservation) cps.createReservation(s3.getId(), c2.getId());
         System.out.println(r1+"\n"+r2+"\n"+r3+"\n");
 
         System.out.println("\nzly vstup:");
@@ -484,6 +501,11 @@ public class Project1A {
         System.out.println("\n--------obsadene");
         System.out.println(cps.getOccupiedParkingSpots(cp1.getName()));
 
+        System.out.println("\n--------volne2");
+        System.out.println(cps.getAvailableParkingSpots(cp2.getName()));
+        System.out.println("\n--------obsadene2");
+        System.out.println(cps.getOccupiedParkingSpots(cp2.getName()));
+
         System.out.println("\nzly vstup:");
         System.out.println(cps.getParkingSpot(40000L));
         System.out.println(cps.getParkingSpot(null));
@@ -533,6 +555,7 @@ public class Project1A {
         System.out.println("\n--------reservation");
         System.out.println(cps.getReservations(s1.getId(),new Date(System.currentTimeMillis())));
         System.out.println(cps.getReservations(s2.getId(),new Date(System.currentTimeMillis())));
+
         System.out.println(cps.getReservations(s3.getId(),new Date(System.currentTimeMillis())));
         System.out.println(cps.getReservations(s3.getId(),new Date(System.currentTimeMillis()+100000000)));
         System.out.println(cps.getMyReservations(u1.getId()));

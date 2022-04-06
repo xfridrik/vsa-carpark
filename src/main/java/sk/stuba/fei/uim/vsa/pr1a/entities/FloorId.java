@@ -3,6 +3,7 @@ package sk.stuba.fei.uim.vsa.pr1a.entities;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Embeddable
 public class FloorId implements Serializable {
@@ -37,5 +38,18 @@ public class FloorId implements Serializable {
                 "floorId='" + floorId + '\'' +
                 ", carParkID=" + carParkID +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FloorId floorId1 = (FloorId) o;
+        return floorId.equals(floorId1.floorId) && carParkID.equals(floorId1.carParkID);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(floorId, carParkID);
     }
 }
